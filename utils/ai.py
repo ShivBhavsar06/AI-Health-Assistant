@@ -13,6 +13,7 @@ from models.medicine import Medicine
 from models.reminder import Reminder
 
 UNAVAILABLE_MESSAGE = "The AI assistant is temporarily unavailable. Please try again later."
+NOT_CONFIGURED_MESSAGE = "AI features are not enabled on this deployment."
 AUTHENTICATION_MESSAGE = "The AI provider rejected the configured API key. Set a valid OPENROUTER_API_KEY in .env and restart the app."
 RATE_LIMIT_MESSAGE = "The assistant is busy right now. Please wait a moment and try again."
 TIMEOUT_MESSAGE = "The assistant took too long to respond. Please try again."
@@ -88,7 +89,7 @@ def summarize_uploaded_report(user, file_storage):
     report = _report_text(file_storage)
     api_key = current_app.config.get("OPENROUTER_API_KEY")
     if not api_key:
-        return False, UNAVAILABLE_MESSAGE
+        return False, NOT_CONFIGURED_MESSAGE
 
     instruction = (
         "Summarize this uploaded medical report for the patient in plain language. "
@@ -239,7 +240,7 @@ def ask_health_assistant(user, query: str, mode: str = "chat"):
 
     api_key = current_app.config.get("OPENROUTER_API_KEY")
     if not api_key:
-        return False, UNAVAILABLE_MESSAGE
+        return False, NOT_CONFIGURED_MESSAGE
 
     mode_instruction = {
         "chat": "Answer the user's health question clearly.",

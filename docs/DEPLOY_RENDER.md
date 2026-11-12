@@ -102,6 +102,24 @@ flask --app run.py create-admin
 
 Then sign in at `https://<your-service>.onrender.com/admin/login`.
 
+## 4b. AI features (optional, still $0)
+
+AI is disabled when `OPENROUTER_API_KEY` is empty; everything else keeps working. To enable
+it for free, the app accepts any OpenAI-compatible provider — no paid OpenAI key required:
+
+| Provider | Get a key | `OPENROUTER_BASE_URL` | `OPENROUTER_MODEL` |
+| --- | --- | --- | --- |
+| Groq (no card, fast) | <https://console.groq.com/keys> | `https://api.groq.com/openai/v1` | `openai/gpt-oss-120b` |
+| Google AI Studio (no card) | <https://aistudio.google.com/apikey> | `https://generativelanguage.googleapis.com/v1beta/openai/` | `gemini-2.5-flash` |
+| OpenRouter (`:free` models) | <https://openrouter.ai/keys> | `https://openrouter.ai/api/v1` | a model ending in `:free` |
+
+Set those three variables in Render → Environment (and in local `.env` to test). Notes:
+
+- Groq requires phone verification and allows ~30 requests/min, 1,000/day.
+- Google's free tier may use prompts for product improvement outside the EEA/UK/CH — avoid it
+  for real patient data.
+- Image-based report summaries need a vision model (Gemini or an OpenRouter vision model).
+
 ## 5. Verify
 
 - `https://<your-service>.onrender.com/` loads the landing page.
