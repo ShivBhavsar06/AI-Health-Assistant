@@ -57,7 +57,7 @@ Set `OPENROUTER_API_KEY` in `.env` to enable AI features. Configure SMTP using t
 ## Deploy
 
 A free deployment guide (Render + TiDB Cloud Starter) is available in
-[docs/DEPLOY_RENDER.md](docs/DEPLOY_RENDER.md). The repo includes a `render.yaml` blueprint, so
+https://healthmate-ai-5dl3.onrender.com . The repo includes a `render.yaml` blueprint, so
 Render can provision the web service straight from GitHub.
 
 ## Project layout
