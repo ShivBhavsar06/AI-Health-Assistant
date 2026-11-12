@@ -1,0 +1,69 @@
+<form id="editProfile" class="card app-card validated-form profile-edit-card{% if not edit_open %} d-none{% endif %}" method="post" action="{{ url_for('user.profile') }}" enctype="multipart/form-data" novalidate>
+    <div class="card-body row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <p class="page-kicker mb-1">Update</p>
+                <h5 class="mb-0">Edit profile</h5>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-profile-edit-cancel>Close</button>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Full name</label>
+            <input class="form-control" name="full_name" value="{{ profile_user.full_name }}" required>
+            <div class="invalid-feedback">Enter your full name.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Username</label>
+            <input class="form-control" name="username" value="{{ profile_user.username }}" pattern="[A-Za-z0-9_.-]{3,50}" required>
+            <div class="invalid-feedback">Use 3 to 50 letters, numbers, dots, hyphens, or underscores.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" name="email" value="{{ profile_user.email }}" required>
+            <div class="invalid-feedback">Enter a valid email address.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input class="form-control" name="phone_number" value="{{ profile_user.phone_number or '' }}" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" data-phone-input required>
+            <div class="form-text">Use a valid phone number.</div>
+            <div class="invalid-feedback">Enter a valid phone number.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Date of birth</label>
+            <input class="form-control" type="date" name="date_of_birth" value="{{ profile_user.date_of_birth or '' }}">
+            <div class="form-text">Optional. Used only for your profile information.</div>
+            <div class="invalid-feedback">Enter a valid date of birth.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Gender</label>
+            <select class="form-select" name="gender">
+                <option value="">Select</option>
+                {% for item in ['Male', 'Female', 'Other'] %}
+                <option value="{{ item }}" {% if profile_user.gender == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Profile photo</label>
+            <input class="form-control" type="file" name="profile_photo" accept=".png,.jpg,.jpeg,.webp" data-profile-photo-input>
+            <div class="form-text">PNG, JPG, or WEBP. The photo is shown centered on this page.</div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Emergency contact name</label>
+            <input class="form-control" name="emergency_contact_name" value="{{ profile_user.emergency_contact_name or '' }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Relationship</label>
+            <input class="form-control" name="emergency_contact_relationship" value="{{ profile_user.emergency_contact_relationship or '' }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Emergency phone</label>
+            <input class="form-control" name="emergency_contact_phone" value="{{ profile_user.emergency_contact_phone or '' }}" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" data-phone-input>
+            <div class="invalid-feedback">Enter a valid emergency contact phone number.</div>
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Save changes</button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,77 @@
+{% extends 'app_base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page %}
+<div class="dashboard-page">
+    <header class="dashboard-welcome">
+        <div class="dashboard-welcome-copy">
+            <p class="page-kicker">Your health workspace</p>
+            <h2>Welcome back, {{ user.full_name.split(' ')[0] }}</h2>
+            <p>{{ user.email }}</p>
+        </div>
+        <a class="btn btn-primary dashboard-assistant-link" href="{{ url_for('ai.chat') }}"><i class="bi bi-stars" aria-hidden="true"></i>Ask the assistant<i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+    </header>
+
+    <section class="dashboard-stat-grid" aria-label="Health overview">
+        <a class="dashboard-stat-item dashboard-stat-medicines" href="{{ url_for('medicines.list_medicines') }}"><span class="dashboard-stat-icon"><i class="bi bi-capsule" aria-hidden="true"></i></span><span class="dashboard-stat-label">Medicines</span><strong>{{ medicine_count }}</strong><small>In your plan</small><i class="bi bi-arrow-up-right dashboard-stat-arrow" aria-hidden="true"></i></a>
+        <a class="dashboard-stat-item dashboard-stat-appointments" href="{{ url_for('appointments.list_appointments') }}"><span class="dashboard-stat-icon"><i class="bi bi-calendar2-heart" aria-hidden="true"></i></span><span class="dashboard-stat-label">Appointments</span><strong>{{ appointment_count }}</strong><small>In your schedule</small><i class="bi bi-arrow-up-right dashboard-stat-arrow" aria-hidden="true"></i></a>
+        <a class="dashboard-stat-item dashboard-stat-reminders" href="{{ url_for('reminders.list_reminders') }}"><span class="dashboard-stat-icon"><i class="bi bi-bell" aria-hidden="true"></i></span><span class="dashboard-stat-label">Pending reminders</span><strong>{{ reminder_count }}</strong><small>Need attention</small><i class="bi bi-arrow-up-right dashboard-stat-arrow" aria-hidden="true"></i></a>
+        <a class="dashboard-stat-item dashboard-stat-record" href="{{ url_for('health_records.detail') }}"><span class="dashboard-stat-icon"><i class="bi bi-droplet" aria-hidden="true"></i></span><span class="dashboard-stat-label">Blood group</span><strong>{{ health_record.blood_group if health_record and health_record.blood_group else '—' }}</strong><small>Health record</small><i class="bi bi-arrow-up-right dashboard-stat-arrow" aria-hidden="true"></i></a>
+    </section>
+
+    <div class="row g-4 dashboard-panels">
+        <div class="col-lg-7">
+            <section class="dashboard-panel h-100" aria-labelledby="today-reminders-title">
+                <div class="dashboard-panel-heading">
+                    <div><span class="dashboard-panel-icon dashboard-panel-icon-reminders"><i class="bi bi-bell" aria-hidden="true"></i></span><div><p class="page-kicker">Today</p><h3 id="today-reminders-title">Medicine reminders</h3></div></div>
+                    <a href="{{ url_for('reminders.list_reminders') }}">View all<i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                {% if today_reminders %}
+                <div class="table-responsive">
+                    <table class="table align-middle dashboard-table">
+                        <thead><tr><th scope="col">Medicine</th><th scope="col">Time</th><th scope="col">Status</th></tr></thead>
+                        <tbody>
+                        {% for item in today_reminders %}
+                            <tr><td><span class="dashboard-table-primary">{{ item.medicine.medicine_name if item.medicine else 'Medicine' }}</span></td><td><span class="dashboard-table-time"><i class="bi bi-clock" aria-hidden="true"></i>{{ item.reminder_time.strftime('%H:%M') if item.reminder_time else item.reminder_time }}</span></td><td><span class="badge badge-{{ item.status|lower }} dashboard-status">{{ item.status }}</span></td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="dashboard-empty"><span class="dashboard-empty-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span><div><strong>Nothing scheduled for today</strong><p>Your medicine reminders will appear here.</p></div><a href="{{ url_for('medicines.list_medicines') }}" aria-label="View medicines"><i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+                {% endif %}
+            </section>
+        </div>
+        <div class="col-lg-5">
+            <section class="dashboard-panel h-100" aria-labelledby="upcoming-appointments-title">
+                <div class="dashboard-panel-heading">
+                    <div><span class="dashboard-panel-icon dashboard-panel-icon-appointments"><i class="bi bi-calendar2-heart" aria-hidden="true"></i></span><div><p class="page-kicker">Your visits</p><h3 id="upcoming-appointments-title">Upcoming appointments</h3></div></div>
+                    <a href="{{ url_for('appointments.list_appointments') }}">Manage<i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                {% if upcoming_appointments %}
+                <div class="table-responsive">
+                    <table class="table align-middle dashboard-table">
+                        <thead><tr><th scope="col">Doctor</th><th scope="col">When</th></tr></thead>
+                        <tbody>
+                        {% for item in upcoming_appointments %}
+                            <tr><td><span class="dashboard-table-primary">{{ item.doctor_name or 'Doctor' }}</span></td><td><span class="dashboard-table-time"><i class="bi bi-calendar3" aria-hidden="true"></i>{{ item.appointment_date }} · {{ item.appointment_time.strftime('%H:%M') if item.appointment_time else item.appointment_time }}</span></td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="dashboard-empty"><span class="dashboard-empty-icon dashboard-empty-icon-appointments"><i class="bi bi-calendar-plus" aria-hidden="true"></i></span><div><strong>No upcoming appointments</strong><p>Your scheduled visits will appear here.</p></div><a href="{{ url_for('appointments.list_appointments') }}" aria-label="Manage appointments"><i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+
+    <section class="dashboard-analytics" aria-label="Health activity charts">
+        <div class="dashboard-analytics-heading"><div><p class="page-kicker">At a glance</p><h3>Health activity</h3></div></div>
+        {% include 'includes/activity_charts.html' %}
+    </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

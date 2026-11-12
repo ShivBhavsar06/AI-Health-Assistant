@@ -1,0 +1,442 @@
+{% extends 'app_base.html' %}
+
+{% block title %}HealthMate AI Assistant{% endblock %}
+
+{% block page %}
+<div class="ai-page">
+    <div class="page-header ai-page-header">
+        <div class="ai-page-title">
+            <span class="ai-page-mark"><i class="bi bi-stars" aria-hidden="true"></i></span>
+            <div>
+                <p class="page-kicker">Assistant</p>
+                <h2>HealthMate AI Assistant</h2>
+                <p class="text-muted mb-0">General health information to help you prepare questions and organize care.</p>
+            </div>
+        </div>
+        <span class="ai-page-context"><i class="bi bi-shield-check" aria-hidden="true"></i>Health information</span>
+    </div>
+
+    <div class="disclaimer ai-medical-notice mb-4" role="note">
+        <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+        <p>HealthMate AI provides general information only. It is not a doctor or a substitute for professional medical care.</p>
+    </div>
+
+    <div class="ai-chat-layout ai-workspace">
+
+
+    <!-- =====================================================
+         MAIN CHAT
+         ===================================================== -->
+
+    <section class="card app-card ai-chat-card" aria-label="Assistant conversation">
+
+        <div class="ai-chat-card-header">
+            <div class="ai-chat-card-title">
+                <span class="ai-chat-card-icon"><i class="bi bi-chat-square-text" aria-hidden="true"></i></span>
+                <div><strong>Conversation</strong><span>Ask a question or choose a prompt</span></div>
+            </div>
+            <span class="ai-chat-mode-label"><i class="bi bi-stars" aria-hidden="true"></i>HealthMate AI</span>
+        </div>
+
+        <div class="card-body ai-chat-body">
+
+
+            <!-- =================================================
+                 CHAT CONVERSATION
+                 ================================================= -->
+
+            <div
+                id="aiConversation"
+                class="ai-conversation"
+                aria-live="polite"
+                aria-label="HealthMate AI conversation"
+            >
+
+                <!-- Empty State -->
+
+                <div
+                    id="aiEmptyState"
+                    class="ai-empty-state"
+                >
+
+                    <div class="ai-empty-icon">
+                        <i class="bi bi-stars"></i>
+                    </div>
+
+                    <h4>
+                        How can I help today?
+                    </h4>
+
+                    <p>
+                        Ask about your medicines, appointments,
+                        records, or general health information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ATTACHMENT / REPORT CONTROLS
+                 ================================================= -->
+
+            <div class="ai-tool-row">
+
+                <input
+                    id="aiReport"
+                    class="visually-hidden"
+                    type="file"
+                    accept=".pdf,.docx,.png,.jpg,.jpeg,
+                            application/pdf,
+                            application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                            image/*"
+                >
+
+
+                <span
+                    id="aiReportName"
+                    class="ai-attachment d-none"
+                >
+
+                    <i class="bi bi-paperclip me-1"></i>
+
+                    <span></span>
+
+                </span>
+
+
+                <button
+                    id="aiSummarizeReport"
+                    class="btn btn-sm btn-outline-primary d-none"
+                    type="button"
+                >
+                    Summarize report
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 CHAT COMPOSER
+                 ================================================= -->
+
+            <form
+                id="aiComposer"
+                class="ai-composer"
+                autocomplete="off"
+            >
+
+
+                <!-- Attachment -->
+
+                <button
+                    id="aiAttach"
+                    class="ai-composer-button ai-plus-button"
+                    type="button"
+                    aria-label="Attach a medical report"
+                    title="Attach medical report"
+                >
+
+                    <i class="bi bi-plus-lg"></i>
+
+                </button>
+
+
+                <!-- Text Input -->
+
+                <textarea
+                    id="aiQuery"
+                    class="ai-query"
+                    rows="1"
+                    placeholder="Ask anything"
+                    aria-label="Ask anything"
+                ></textarea>
+
+
+                <!-- Think -->
+
+                <button
+                    id="thinkToggleCompact"
+                    class="ai-think-button"
+                    type="button"
+                    aria-label="Toggle Think mode"
+                    aria-pressed="false"
+                >
+
+                    <i class="bi bi-brain"></i>
+
+                    <span>
+                        Think
+                    </span>
+
+                </button>
+
+
+                <!-- Voice Input -->
+
+                <button
+                    id="voiceStart"
+                    class="ai-composer-button ai-mic-button"
+                    type="button"
+                    aria-label="Use voice input"
+                    title="Use voice input"
+                >
+
+                    <i class="bi bi-mic"></i>
+
+                </button>
+
+
+                <!-- Send -->
+
+                <button
+                    id="aiSend"
+                    class="ai-send-button"
+                    type="submit"
+                    aria-label="Send message"
+                    title="Send message"
+                >
+
+                    <i class="bi bi-arrow-up"></i>
+
+                </button>
+
+            </form>
+
+
+            <!-- =================================================
+                 STATUS
+                 ================================================= -->
+
+            <div
+                id="aiStatus"
+                class="ai-status"
+                role="status"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- =================================================
+                 VOICE RESPONSE
+                 ONE BUTTON = SPEAK / STOP
+                 ================================================= -->
+
+            <div class="ai-secondary-controls">
+
+                <button
+                    id="voiceSpeak"
+                    class="btn btn-sm btn-link"
+                    type="button"
+                    disabled
+                    title="Speak response"
+                    aria-label="Speak response"
+                >
+
+                    <i class="bi bi-volume-up me-1"></i>
+
+                    Speak response
+
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 EXPORT
+                 PDF + IMAGE
+                 ================================================= -->
+
+            <div class="ai-export-row">
+
+
+                <!-- Export PDF -->
+
+                <form
+                    method="post"
+                    action="{{ url_for('ai.export_pdf') }}"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+
+                    <input
+                        type="hidden"
+                        id="pdfResponse"
+                        name="response"
+                    >
+
+
+                    <button
+                        id="pdfBtn"
+                        class="btn btn-outline-primary"
+                        type="submit"
+                        disabled
+                    >
+
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+
+                        Export PDF
+
+                    </button>
+
+                </form>
+
+
+                <!-- Export Image -->
+
+                <form
+                    method="post"
+                    action="{{ url_for('ai.export_image') }}"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+
+                    <input
+                        type="hidden"
+                        id="imageResponse"
+                        name="response"
+                    >
+
+
+                    <button
+                        id="imageBtn"
+                        class="btn btn-outline-primary"
+                        type="submit"
+                        disabled
+                    >
+
+                        <i class="bi bi-image me-1"></i>
+
+                        Export Image
+
+                    </button>
+
+                </form>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RIGHT SIDEBAR
+         ===================================================== -->
+
+    <aside class="card app-card ai-prompt-panel" aria-label="Suggested prompts and voice controls">
+
+        <div class="card-body">
+
+
+            <!-- Suggestions -->
+
+            <p class="page-kicker mb-1">Suggestions</p>
+            <h5 class="ai-prompt-heading">Start with a prompt</h5>
+
+
+            <div class="prompt-grid">
+
+
+                <button
+                    class="btn btn-outline-primary prompt-chip"
+                    type="button"
+                    data-prompt="Give me my health summary"
+                    data-prompt-mode="summary"
+                >
+                    <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>
+                    Give me my health summary
+                    <i class="bi bi-arrow-up-left" aria-hidden="true"></i>
+                </button>
+
+
+                <button
+                    class="btn btn-outline-primary prompt-chip"
+                    type="button"
+                    data-prompt="Show my medicine schedule"
+                    data-prompt-mode="chat"
+                >
+                    <i class="bi bi-capsule" aria-hidden="true"></i>
+                    Show my medicine schedule
+                    <i class="bi bi-arrow-up-left" aria-hidden="true"></i>
+                </button>
+
+
+                <button
+                    class="btn btn-outline-primary prompt-chip"
+                    type="button"
+                    data-prompt="What health information should I monitor?"
+                    data-prompt-mode="recommend"
+                >
+                    <i class="bi bi-activity" aria-hidden="true"></i>
+                    What health information should I monitor?
+                    <i class="bi bi-arrow-up-left" aria-hidden="true"></i>
+                </button>
+
+
+                <button
+                    class="btn btn-outline-primary prompt-chip"
+                    type="button"
+                    data-prompt="Summarize my recent health records"
+                    data-prompt-mode="summary"
+                >
+                    <i class="bi bi-journal-medical" aria-hidden="true"></i>
+                    Summarize my recent health records
+                    <i class="bi bi-arrow-up-left" aria-hidden="true"></i>
+                </button>
+
+
+            </div>
+
+
+            <!-- Voice Assistant Information -->
+
+            <div class="voice-panel mt-4">
+
+                <h6>
+
+                    <i class="bi bi-mic me-1"></i>
+
+                    Voice assistant
+
+                </h6>
+
+
+                <p class="text-muted small mb-0">
+
+                    Use the microphone to dictate a question.
+                    After the AI responds, use the
+                    <strong>Speak response</strong> button
+                    to hear the response.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{{ url_for('static', filename='js/ai.js') }}"></script>
+
+{% endblock %}

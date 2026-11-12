@@ -1,0 +1,53 @@
+{% extends 'app_base.html' %}
+{% block title %}{{ 'Edit medicine' if medicine else 'Add medicine' }}{% endblock %}
+{% block page %}
+<div class="medicine-page medicine-form-page">
+<div class="page-header medicine-page-header">
+    <div>
+        <p class="page-kicker">Treatment plan</p>
+        <h2>{{ 'Edit medicine' if medicine else 'Add medicine' }}</h2>
+        <p class="text-muted mb-0">Set the dose schedule and dates for this treatment.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="{{ url_for('medicines.detail', medicine_id=medicine.medicine_id) if medicine else url_for('medicines.list_medicines') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i>{{ 'Back to details' if medicine else 'Back to medicines' }}</a>
+</div>
+<form class="card app-card medicine-form-card" method="post">
+    <div class="card-body row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-12 medicine-form-section-heading"><span class="medicine-form-section-icon"><i class="bi bi-capsule-pill" aria-hidden="true"></i></span><div><h3>Medicine details</h3><p>Name and prescribed dose</p></div></div>
+        <div class="col-md-6"><label class="form-label" for="medicine_name">Medicine name</label><input class="form-control" id="medicine_name" name="medicine_name" value="{{ form.get('medicine_name', medicine.medicine_name if medicine else '') }}" required></div>
+        <div class="col-md-6"><label class="form-label" for="dosage">Dosage</label><input class="form-control" id="dosage" name="dosage" value="{{ form.get('dosage', medicine.dosage if medicine else '') }}" placeholder="e.g. 1 tablet"></div>
+        <div class="col-12 medicine-form-section-heading"><span class="medicine-form-section-icon medicine-form-clock-icon"><i class="bi bi-clock-history" aria-hidden="true"></i></span><div><h3>Dose schedule</h3><p>Select each part of the day when a dose is scheduled, then set its time.</p></div></div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="medicine-dose-period">
+                <div class="form-check"><input class="form-check-input" id="dose_morning" type="checkbox" name="dose_periods" value="morning" {% if (selected_periods is defined and 'morning' in selected_periods) or (selected_periods is not defined and medicine and medicine.morning_time) %}checked{% endif %}><label class="form-check-label" for="dose_morning">Morning dose</label></div>
+                <label class="form-label" for="morning_time">Time</label><input class="form-control" id="morning_time" type="time" name="morning_time" value="{{ form.get('morning_time', medicine.morning_time.strftime('%H:%M') if medicine and medicine.morning_time else '') }}">
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="medicine-dose-period">
+                <div class="form-check"><input class="form-check-input" id="dose_afternoon" type="checkbox" name="dose_periods" value="afternoon" {% if (selected_periods is defined and 'afternoon' in selected_periods) or (selected_periods is not defined and medicine and medicine.afternoon_time) %}checked{% endif %}><label class="form-check-label" for="dose_afternoon">Afternoon dose</label></div>
+                <label class="form-label" for="afternoon_time">Time</label><input class="form-control" id="afternoon_time" type="time" name="afternoon_time" value="{{ form.get('afternoon_time', medicine.afternoon_time.strftime('%H:%M') if medicine and medicine.afternoon_time else '') }}">
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="medicine-dose-period">
+                <div class="form-check"><input class="form-check-input" id="dose_evening" type="checkbox" name="dose_periods" value="evening" {% if (selected_periods is defined and 'evening' in selected_periods) or (selected_periods is not defined and medicine and medicine.evening_time) %}checked{% endif %}><label class="form-check-label" for="dose_evening">Evening dose</label></div>
+                <label class="form-label" for="evening_time">Time</label><input class="form-control" id="evening_time" type="time" name="evening_time" value="{{ form.get('evening_time', medicine.evening_time.strftime('%H:%M') if medicine and medicine.evening_time else '') }}">
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="medicine-dose-period">
+                <div class="form-check"><input class="form-check-input" id="dose_night" type="checkbox" name="dose_periods" value="night" {% if (selected_periods is defined and 'night' in selected_periods) or (selected_periods is not defined and medicine and medicine.night_time) %}checked{% endif %}><label class="form-check-label" for="dose_night">Night dose</label></div>
+                <label class="form-label" for="night_time">Time</label><input class="form-control" id="night_time" type="time" name="night_time" value="{{ form.get('night_time', medicine.night_time.strftime('%H:%M') if medicine and medicine.night_time else '') }}">
+            </div>
+        </div>
+        <div class="col-12 medicine-form-section-heading"><span class="medicine-form-section-icon medicine-form-calendar-icon"><i class="bi bi-calendar-range" aria-hidden="true"></i></span><div><h3>Treatment period</h3><p>Optional start and end dates</p></div></div>
+        <div class="col-md-6"><label class="form-label" for="start_date">Start date</label><input class="form-control" id="start_date" type="date" name="start_date" value="{{ form.get('start_date', medicine.start_date if medicine else '') }}"></div>
+        <div class="col-md-6"><label class="form-label" for="end_date">End date</label><input class="form-control" id="end_date" type="date" name="end_date" value="{{ form.get('end_date', medicine.end_date if medicine else '') }}"></div>
+        <div class="col-12 medicine-form-section-heading"><span class="medicine-form-section-icon medicine-form-notes-icon"><i class="bi bi-card-text" aria-hidden="true"></i></span><div><h3>Instructions</h3><p>Additional directions for taking this medicine</p></div></div>
+        <div class="col-12"><label class="visually-hidden" for="instructions">Instructions</label><textarea class="form-control" id="instructions" name="instructions" rows="3" placeholder="Add any instructions or notes">{{ form.get('instructions', medicine.instructions if medicine else '') }}</textarea></div>
+        <div class="col-12 medicine-form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('medicines.detail', medicine_id=medicine.medicine_id) if medicine else url_for('medicines.list_medicines') }}">Cancel</a><button class="btn btn-primary" type="submit"><i class="bi bi-check2" aria-hidden="true"></i>{{ 'Save changes' if medicine else 'Save medicine' }}</button></div>
+    </div>
+</form>
+</div>
+{% endblock %}

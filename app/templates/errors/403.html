@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Forbidden{% endblock %}
+{% block content %}{% set code = '403' %}{% set heading = 'Access denied' %}{% set message = 'You are not allowed to view this page.' %}{% include 'errors/_status.html' %}{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'app_base.html' %}
+{% block title %}Health record form{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Clinical</p>
+        <h2>{{ 'Update health record' if record else 'Add health record' }}</h2>
+        <p class="text-muted mb-0">Each patient has a single health record.</p>
+    </div>
+</div>
+<form class="card app-card" method="post">
+    <div class="card-body row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-4"><label class="form-label">Blood group</label><input class="form-control" name="blood_group" maxlength="5" value="{{ record.blood_group if record else '' }}"></div>
+        <div class="col-md-4"><label class="form-label">Height (cm)</label><input class="form-control" name="height" value="{{ record.height if record else '' }}"></div>
+        <div class="col-md-4"><label class="form-label">Weight (kg)</label><input class="form-control" name="weight" value="{{ record.weight if record else '' }}"></div>
+        <div class="col-md-6"><label class="form-label">Allergies</label><textarea class="form-control" name="allergies" rows="3">{{ record.allergies if record else '' }}</textarea></div>
+        <div class="col-md-6"><label class="form-label">Chronic disease</label><textarea class="form-control" name="chronic_disease" rows="3">{{ record.chronic_disease if record else '' }}</textarea></div>
+        <div class="col-12"><hr class="health-record-form-divider"><h3 class="health-record-form-title">Lifestyle information</h3><p class="text-muted small mb-0">These details help provide better context for your personal health summary.</p></div>
+        <div class="col-md-4"><label class="form-label" for="smoking_status">Smoking status</label><select class="form-select" id="smoking_status" name="smoking_status"><option value="">Prefer not to say</option><option value="Never" {% if record and record.smoking_status == 'Never' %}selected{% endif %}>Never</option><option value="Former smoker" {% if record and record.smoking_status == 'Former smoker' %}selected{% endif %}>Former smoker</option><option value="Current smoker" {% if record and record.smoking_status == 'Current smoker' %}selected{% endif %}>Current smoker</option></select></div>
+        <div class="col-md-4"><label class="form-label" for="alcohol_use">Alcohol use</label><select class="form-select" id="alcohol_use" name="alcohol_use"><option value="">Prefer not to say</option><option value="None" {% if record and record.alcohol_use == 'None' %}selected{% endif %}>None</option><option value="Occasional" {% if record and record.alcohol_use == 'Occasional' %}selected{% endif %}>Occasional</option><option value="Regular" {% if record and record.alcohol_use == 'Regular' %}selected{% endif %}>Regular</option></select></div>
+        <div class="col-md-4"><label class="form-label" for="exercise_habits">Exercise habits</label><input class="form-control" id="exercise_habits" name="exercise_habits" maxlength="500" value="{{ record.exercise_habits if record else '' }}" placeholder="e.g. Walking 3 times a week"></div>
+        <div class="col-md-6"><label class="form-label" for="diet">Diet</label><textarea class="form-control" id="diet" name="diet" rows="3" maxlength="1000" placeholder="e.g. Vegetarian, low-sodium, food restrictions">{{ record.diet if record else '' }}</textarea></div>
+        <div class="col-md-6"><label class="form-label" for="other_lifestyle">Other lifestyle notes</label><textarea class="form-control" id="other_lifestyle" name="other_lifestyle" rows="3" maxlength="1000" placeholder="Any other information you want to remember">{{ record.other_lifestyle if record else '' }}</textarea></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Save</button></div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Feedback{% endblock %}
+{% block admin_heading %}Feedback{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Feedback</li>{% endblock %}
+{% block page %}
+<div class="admin-feedback">
+    <div class="page-header admin-feedback-header">
+        <div>
+            <p class="page-kicker">Patient insights</p>
+            <h1 class="h2">Feedback</h1>
+            <p class="text-muted mb-0">Review patient ratings and comments.</p>
+        </div>
+        <span class="admin-feedback-total">
+            <i class="bi bi-chat-square-heart" aria-hidden="true"></i>
+            {{ pagination.total }} {% if pagination.total == 1 %}response{% else %}responses{% endif %}
+        </span>
+    </div>
+
+    <form class="search-bar admin-feedback-search" method="get" role="search">
+        <label class="form-label visually-hidden" for="feedbackSearch">Search feedback</label>
+        <div class="input-group">
+            <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
+            <input class="form-control" id="feedbackSearch" name="q" value="{{ q }}" placeholder="Search comments, patient, or rating" type="search">
+        </div>
+        <div class="admin-feedback-search-actions">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+            {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('admin.feedback') }}">Clear</a>{% endif %}
+        </div>
+    </form>
+
+    <section class="app-table admin-feedback-table" aria-label="Patient feedback">
+        <div class="admin-feedback-table-heading">
+            <div>
+                <h2>{% if q %}Search results{% else %}Recent responses{% endif %}</h2>
+                <p class="mb-0 text-muted">{% if q %}Feedback matching your search{% else %}Latest feedback from patients{% endif %}</p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Patient</th>
+                        <th scope="col">Rating</th>
+                        <th scope="col">Comment</th>
+                        <th scope="col">Submitted</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in entries %}
+                    <tr>
+                        <td>
+                            <div class="admin-feedback-patient">
+                                <span class="admin-feedback-avatar" aria-hidden="true">{{ (item.user.full_name if item.user else item.user_id)[0]|upper }}</span>
+                                <span>
+                                    <strong>{{ item.user.full_name if item.user else 'Patient account unavailable' }}</strong>
+                                    <small>{{ item.user_id }}</small>
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="admin-feedback-rating" role="img" aria-label="{{ item.rating }} out of 5">
+                                <i class="bi bi-star-fill" aria-hidden="true"></i>
+                                <strong>{{ item.rating }}</strong><span>/ 5</span>
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.comments %}
+                                <p class="admin-feedback-comment mb-0">{{ item.comments }}</p>
+                            {% else %}
+                                <span class="admin-feedback-no-comment">No written comment</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <time class="admin-feedback-date" datetime="{{ item.feedback_date.isoformat() }}">
+                                {{ item.feedback_date.strftime('%b %d, %Y') }}
+                            </time>
+                            <span class="admin-feedback-time">{{ item.feedback_date.strftime('%I:%M %p') }}</span>
+                        </td>
+                        <td class="text-end">
+                            <form method="post" action="{{ url_for('admin.delete_feedback', feedback_id=item.feedback_id) }}" data-confirm="Delete this feedback?">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-sm btn-outline-danger admin-feedback-delete" type="submit" aria-label="Delete feedback from {{ item.user.full_name if item.user else item.user_id }}">
+                                    <i class="bi bi-trash3" aria-hidden="true"></i><span>Delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="admin-empty-cell">
+                            <span class="admin-feedback-empty-icon" aria-hidden="true"><i class="bi bi-chat-square-text"></i></span>
+                            <strong>{% if q %}No matching feedback{% else %}No feedback yet{% endif %}</strong>
+                            <span>{% if q %}Try searching for a different patient, comment, or rating.{% else %}Patient responses will appear here when submitted.{% endif %}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-feedback-table-footer">
+            <span class="text-muted">
+                {% if pagination.total %}
+                    Showing {{ pagination.first }}–{{ pagination.last }} of {{ pagination.total }} responses
+                {% else %}
+                    0 responses
+                {% endif %}
+            </span>
+            {% include 'includes/pagination.html' %}
+        </div>
+    </section>
+</div>
+{% endblock %}

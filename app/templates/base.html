@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+    <script>
+        (function () {
+            var theme = localStorage.getItem("aihealth.theme") || "light";
+            var accent = localStorage.getItem("aihealth.accent") || "#2563eb";
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.setAttribute("data-bs-theme", theme);
+            document.documentElement.style.setProperty("--primary", accent);
+        })();
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}{% if current_user %} has-user-session{% endif %}{% if current_admin %} has-admin-session{% endif %}" data-reminders="{% if current_user %}1{% else %}0{% endif %}">
+{% set ep = request.endpoint or '' %}
+{% block site_header %}
+<header class="app-menubar sticky-top">
+    <nav class="navbar navbar-expand-lg app-navbar" aria-label="Main">
+        <div class="container-xl menubar-inner">
+            <a class="navbar-brand" href="{% if current_admin %}{{ url_for('admin.dashboard') }}{% elif current_user %}{{ url_for('user.dashboard') }}{% else %}{{ url_for('main.home') }}{% endif %}">
+                {% include 'includes/brand_mark.html' %}
+                <span class="brand-copy">
+                    <strong>HealthMate AI</strong>
+                    {% if current_admin %}<small>Admin</small>{% elif current_user %}<small>Workspace</small>{% else %}<small>Personal health</small>{% endif %}
+                </span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                {% if current_admin %}
+                <ul class="navbar-nav menubar-links">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}">Admin dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.settings') }}">Settings</a></li>
+                </ul>
+                <div class="menubar-actions">
+                    <form method="post" action="{{ url_for('auth.logout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-primary btn-sm" type="submit">Log out</button>
+                    </form>
+                </div>
+                {% elif current_user %}
+                <ul class="navbar-nav menubar-links">
+                    <li class="nav-item"><a class="nav-link {% if ep == 'user.dashboard' %}active{% endif %}" href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if ep.startswith('health_records.') %}active{% endif %}" href="{{ url_for('health_records.detail') }}">Health</a></li>
+                    <li class="nav-item"><a class="nav-link {% if ep.startswith('medicines.') %}active{% endif %}" href="{{ url_for('medicines.list_medicines') }}">Medicines</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-badge {% if ep.startswith('reminders.') %}active{% endif %}" href="{{ url_for('reminders.list_reminders') }}">
+                            Reminders
+                            <span class="nav-badge d-none" id="reminderBadge">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link {% if ep.startswith('appointments.') %}active{% endif %}" href="{{ url_for('appointments.list_appointments') }}">Appointments</a></li>
+                    <li class="nav-item"><a class="nav-link {% if ep.startswith('medical_reports.') %}active{% endif %}" href="{{ url_for('medical_reports.list_reports') }}">Reports</a></li>
+                    <li class="nav-item"><a class="nav-link {% if ep.startswith('ai.') %}active{% endif %}" href="{{ url_for('ai.chat') }}">Assistant</a></li>
+                </ul>
+                <div class="menubar-actions">
+                    <button class="user-chip user-menu-trigger" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenu" aria-controls="userMenu" aria-label="Open account menu">
+                        <span class="user-chip-avatar" aria-hidden="true">{{ current_user.full_name[0]|upper }}</span>
+                        <span class="user-chip-name">{{ current_user.full_name }}</span>
+                    </button>
+                </div>
+                {% else %}
+                <ul class="navbar-nav menubar-links">
+                    <li class="nav-item"><a class="nav-link {% if ep == 'main.home' %}active{% endif %}" href="{{ url_for('main.home') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link {% if ep == 'main.about' %}active{% endif %}" href="{{ url_for('main.about') }}">About</a></li>
+                    <li class="nav-item"><a class="nav-link {% if ep == 'main.medical_disclaimer' %}active{% endif %}" href="{{ url_for('main.medical_disclaimer') }}">Medical Disclaimer</a></li>
+                </ul>
+                <div class="menubar-actions">
+                    <a class="btn btn-outline-primary btn-sm" href="{{ url_for('auth.login') }}">Login</a>
+                    <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}">Get started</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+</header>
+{% endblock %}
+
+<main id="main-content" class="{% block main_class %}container-xl px-3 px-lg-4 py-4{% endblock %}" tabindex="-1">
+    {% include 'includes/flash_messages.html' %}
+    {% block content %}{% endblock %}
+</main>
+
+{% block site_footer %}
+{% if current_admin %}
+<footer class="admin-footer mt-auto">
+    <div class="container-xl">
+        <div class="admin-footer-main row g-4">
+            <div class="col-12 col-lg-4">
+                <a class="admin-footer-brand" href="{{ url_for('admin.dashboard') }}" aria-label="HealthMate AI Admin Panel home">
+                    {% include 'includes/brand_mark.html' %}
+                    <span><strong>HealthMate AI Admin Panel</strong><small>Administration &amp; System Management</small></span>
+                </a>
+                <p class="admin-footer-description">Manage users, health services, and feedback from one protected workspace.</p>
+            </div>
+            <nav class="admin-footer-links col-12 col-lg-8 row g-4" aria-label="Admin footer navigation">
+                <div class="col-6 col-md-3">
+                    <h6>Quick Links</h6>
+                    <a href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Dashboard</a>
+                    <a href="{{ url_for('admin.users') }}"><i class="bi bi-people me-2" aria-hidden="true"></i>Users</a>
+                    <a href="{{ url_for('admin.feedback') }}"><i class="bi bi-chat-square-heart me-2" aria-hidden="true"></i>Feedback</a>
+                    <a href="{{ url_for('admin.settings') }}"><i class="bi bi-gear me-2" aria-hidden="true"></i>Settings</a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6>System</h6>
+                    <a href="{{ url_for('main.privacy_policy') }}"><i class="bi bi-shield-lock me-2" aria-hidden="true"></i>Privacy</a>
+                    <a href="{{ url_for('main.medical_disclaimer') }}"><i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>Medical Disclaimer</a>
+                </div>
+            </nav>
+        </div>
+        <div class="admin-footer-bottom">
+            <small>&copy; {{ current_year }} HealthMate AI. All rights reserved.</small>
+        </div>
+    </div>
+</footer>
+{% else %}
+<footer class="app-footer mt-auto">
+    <div class="container-xl">
+        <div class="footer-main row g-4">
+            <div class="footer-brand col-12 col-lg-4">
+                <a class="footer-logo" href="{{ url_for('main.home') }}" aria-label="HealthMate AI home">
+                    {% include 'includes/brand_mark.html' %}
+                    <span><strong>HealthMate AI</strong><small>Personal health workspace</small></span>
+                </a>
+                <p>Organize medicines, appointments, reports, and personal health records in one secure workspace.</p>
+                <div class="footer-trust">
+                    <span><i class="bi bi-shield-check" aria-hidden="true"></i> Secure records</span>
+                    <span><i class="bi bi-heart-pulse" aria-hidden="true"></i> Health reminders</span>
+                </div>
+            </div>
+
+            <nav class="footer-links col-12 col-lg-8" aria-label="Footer navigation">
+                <div>
+                    <h6>Quick Links</h6>
+                    <a href="{{ url_for('main.home') }}"><i class="bi bi-house me-2" aria-hidden="true"></i>Home</a>
+                    <a href="{{ url_for('main.about') }}"><i class="bi bi-info-circle me-2" aria-hidden="true"></i>About</a>
+                    <a href="{{ url_for('main.home') }}#features"><i class="bi bi-grid me-2" aria-hidden="true"></i>Features</a>
+                </div>
+                <div>
+                    <h6>Health Services</h6>
+                    <a href="{{ url_for('medicines.list_medicines') if current_user else url_for('auth.login') }}"><i class="bi bi-capsule me-2" aria-hidden="true"></i>Medicines</a>
+                    <a href="{{ url_for('appointments.list_appointments') if current_user else url_for('auth.login') }}"><i class="bi bi-calendar2-heart me-2" aria-hidden="true"></i>Appointments</a>
+                    <a href="{{ url_for('health_records.detail') if current_user else url_for('auth.login') }}"><i class="bi bi-clipboard2-pulse me-2" aria-hidden="true"></i>Health Records</a>
+                    <a href="{{ url_for('medical_reports.list_reports') if current_user else url_for('auth.login') }}"><i class="bi bi-file-earmark-medical me-2" aria-hidden="true"></i>Medical Reports</a>
+                    <a href="{{ url_for('ai.chat') if current_user else url_for('auth.login') }}"><i class="bi bi-stars me-2" aria-hidden="true"></i>AI Assistant</a>
+                </div>
+                <div>
+                    <h6>Support</h6>
+                    <a href="{{ url_for('main.medical_disclaimer') }}"><i class="bi bi-exclamation-circle me-2" aria-hidden="true"></i>Medical Disclaimer</a>
+                    <a href="{{ url_for('main.privacy_policy') }}"><i class="bi bi-shield-lock me-2" aria-hidden="true"></i>Privacy Policy</a>
+                    <a href="{{ url_for('feedback.create') if current_user else url_for('auth.login') }}"><i class="bi bi-chat-square-heart me-2" aria-hidden="true"></i>Feedback</a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="footer-bottom">
+            <small>HealthMate AI &copy; {{ current_year }}. All rights reserved.</small>
+            <small>For general information only. Not a substitute for professional medical advice.</small>
+        </div>
+    </div>
+</footer>
+{% endif %}
+{% endblock %}
+
+{% if current_user %}
+<div class="offcanvas offcanvas-end user-offcanvas" tabindex="-1" id="userMenu" aria-labelledby="userMenuTitle">
+    <div class="offcanvas-header user-offcanvas-header">
+        <div class="user-offcanvas-profile">
+            <span class="user-offcanvas-avatar" aria-hidden="true">{{ current_user.full_name[0]|upper }}</span>
+            <div class="user-offcanvas-identity">
+                <p class="page-kicker mb-1">Your account</p>
+                <h2 class="offcanvas-title" id="userMenuTitle">{{ current_user.full_name }}</h2>
+                <p class="user-offcanvas-username mb-0"><i class="bi bi-person" aria-hidden="true"></i>{{ current_user.username }}</p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body user-offcanvas-body">
+        <p class="user-offcanvas-section-label">Account settings</p>
+        <nav class="nav flex-column user-menu-links" aria-label="Account menu">
+            <a class="nav-link" href="{{ url_for('user.profile') }}">
+                <i class="bi bi-person-vcard" aria-hidden="true"></i><span>Profile</span><i class="bi bi-chevron-right user-menu-chevron" aria-hidden="true"></i>
+            </a>
+            <a class="nav-link" href="{{ url_for('user.settings') }}">
+                <i class="bi bi-gear" aria-hidden="true"></i><span>Settings</span><i class="bi bi-chevron-right user-menu-chevron" aria-hidden="true"></i>
+            </a>
+            <a class="nav-link" href="{{ url_for('feedback.create') }}">
+                <i class="bi bi-chat-square-heart" aria-hidden="true"></i><span>Feedback</span><i class="bi bi-chevron-right user-menu-chevron" aria-hidden="true"></i>
+            </a>
+        </nav>
+        <div class="user-offcanvas-footer">
+            <p class="user-offcanvas-note"><i class="bi bi-shield-check" aria-hidden="true"></i>Your health information stays private to your account.</p>
+            <form method="post" action="{{ url_for('auth.logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-danger user-offcanvas-logout" type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Sign out</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content reminder-modal">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <p class="text-uppercase small fw-semibold text-primary mb-1" id="reminderModalKicker">Reminder</p>
+                    <h5 class="modal-title mb-0" id="reminderModalTitle">Reminder</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <p class="text-muted mb-2" id="reminderModalDetail"></p>
+                <p class="reminder-modal-time mb-0" id="reminderModalWhen"></p>
+            </div>
+            <div class="modal-footer border-0">
+                <a class="btn btn-outline-primary" href="{{ url_for('reminders.list_reminders') }}">View all</a>
+                <button type="button" class="btn btn-primary" id="reminderCompleteBtn">Mark completed</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="reminderToasts"></div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

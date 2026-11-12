@@ -1,0 +1,21 @@
+<div class="card app-card">
+    <div class="card-body profile-card-body d-md-flex gap-4 align-items-start">
+        {% if profile_user.profile_photo %}
+            <img class="profile-photo mb-3" src="{{ url_for('uploaded_file', filename=profile_user.profile_photo) }}" alt="Profile photo">
+        {% else %}
+            <div class="profile-photo-placeholder mb-3">{{ profile_user.full_name[0]|upper }}</div>
+        {% endif %}
+        <div>
+            <h4>{{ profile_user.full_name }}</h4>
+            <p class="text-muted mb-2">{{ profile_user.username }}</p>
+            <p class="mb-1"><strong>Email:</strong> {{ profile_user.email }}</p>
+            <p class="mb-1"><strong>Phone:</strong> {{ profile_user.phone_number or '—' }}</p>
+            <p class="mb-1"><strong>Date of birth:</strong> {{ profile_user.date_of_birth or '—' }}</p>
+            <p class="mb-1"><strong>Gender:</strong> {{ profile_user.gender or '—' }}</p>
+            <hr>
+            <h6>Emergency contact</h6>
+            <p class="mb-1">{{ profile_user.emergency_contact_name or '—' }} ({{ profile_user.emergency_contact_relationship or '—' }})</p>
+            <p class="mb-0">{{ profile_user.emergency_contact_phone or '—' }}</p>
+        </div>
+    </div>
+</div>

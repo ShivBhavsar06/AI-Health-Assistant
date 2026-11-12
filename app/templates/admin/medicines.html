@@ -1,0 +1,49 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Manage medicines{% endblock %}
+{% block admin_heading %}Medicines{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Medicines</li>{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Treatments</p>
+        <h1 class="h2">Medicines</h1>
+        <p class="text-muted mb-0">Patient treatments and reminder schedules.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.add_medicine') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add medicine</a>
+</div>
+<form class="search-bar row g-2" method="get" role="search">
+    <div class="col-md">
+        <label class="form-label visually-hidden" for="medicineSearch">Search medicines</label>
+        <input class="form-control" id="medicineSearch" name="q" value="{{ q }}" placeholder="Search medicine or patient" type="search">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('admin.medicines') }}">Clear</a>{% endif %}
+    </div>
+</form>
+<div class="app-table table-responsive">
+    <table class="table align-middle">
+        <thead><tr><th scope="col">Medicine</th><th scope="col">Patient</th><th scope="col">Dosage</th><th scope="col">Schedule</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for medicine in medicines %}
+            <tr>
+                <td class="fw-semibold">{{ medicine.medicine_name }}</td>
+                <td>{{ medicine.user.full_name if medicine.user else medicine.user_id }}</td>
+                <td>{{ medicine.dosage or '—' }}</td>
+                <td>{{ medicine.start_date or '—' }} – {{ medicine.end_date or '—' }}</td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.edit_medicine', medicine_id=medicine.medicine_id) }}">Edit</a>
+                    <form class="d-inline" method="post" action="{{ url_for('admin.delete_medicine', medicine_id=medicine.medicine_id) }}" data-confirm="Delete this medicine?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5" class="admin-empty-cell">No medicines found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

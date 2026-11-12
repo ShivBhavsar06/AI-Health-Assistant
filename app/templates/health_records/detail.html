@@ -1,0 +1,125 @@
+{% extends 'app_base.html' %}
+{% block title %}Health record{% endblock %}
+{% block page %}
+<div class="health-record-page">
+    <div class="page-header health-record-header">
+        <div>
+            <p class="page-kicker">Personal health</p>
+            <h2>Health record</h2>
+            <p class="text-muted mb-0">A quick, private summary of the information that matters in a care conversation.</p>
+        </div>
+        <div class="health-record-actions">
+            <a class="btn btn-primary" href="{{ url_for('health_records.edit') }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>{{ 'Update record' if record else 'Create record' }}</a>
+            {% if record %}
+            <form method="post" action="{{ url_for('health_records.delete') }}" data-confirm="Delete your health record?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash3" aria-hidden="true"></i><span class="visually-hidden">Delete health record</span></button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if record %}
+    <section class="health-record-hero" aria-labelledby="record-summary-title">
+        <div class="health-record-hero-icon"><i class="bi bi-heart-pulse" aria-hidden="true"></i></div>
+        <div>
+            <p class="health-record-eyebrow">Your clinical snapshot</p>
+            <h3 id="record-summary-title">Health information at a glance</h3>
+            <p>Keep this information current so it is ready when you need it.</p>
+        </div>
+        {% if record.updated_at %}
+        <span class="health-record-updated"><i class="bi bi-clock-history" aria-hidden="true"></i>Updated {{ record.updated_at.strftime('%b %d, %Y') }}</span>
+        {% endif %}
+    </section>
+
+    <section class="health-record-section" aria-labelledby="vitals-title">
+        <div class="health-record-section-heading">
+            <div>
+                <p class="page-kicker">Measurements</p>
+                <h3 id="vitals-title">Vitals</h3>
+            </div>
+            <i class="bi bi-activity" aria-hidden="true"></i>
+        </div>
+        <div class="health-record-vitals">
+            <div class="health-record-vital health-record-vital-blood">
+                <span class="health-record-vital-icon"><i class="bi bi-droplet" aria-hidden="true"></i></span>
+                <span class="detail-label">Blood group</span>
+                <strong>{{ record.blood_group or 'Not added' }}</strong>
+            </div>
+            <div class="health-record-vital health-record-vital-height">
+                <span class="health-record-vital-icon"><i class="bi bi-arrows-vertical" aria-hidden="true"></i></span>
+                <span class="detail-label">Height</span>
+                <strong>{{ record.height or 'Not added' }}{% if record.height %}<small> cm</small>{% endif %}</strong>
+            </div>
+            <div class="health-record-vital health-record-vital-weight">
+                <span class="health-record-vital-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
+                <span class="detail-label">Weight</span>
+                <strong>{{ record.weight or 'Not added' }}{% if record.weight %}<small> kg</small>{% endif %}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="health-record-notes" aria-labelledby="notes-title">
+        <div class="health-record-section-heading">
+            <div>
+                <p class="page-kicker">Care notes</p>
+                <h3 id="notes-title">Important information</h3>
+            </div>
+            <i class="bi bi-journal-medical" aria-hidden="true"></i>
+        </div>
+        <div class="health-record-note-grid">
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-shield-exclamation" aria-hidden="true"></i><span>Allergies</span></div>
+                <p>{{ record.allergies or 'No allergies have been added.' }}</p>
+            </article>
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-prescription2" aria-hidden="true"></i><span>Chronic conditions</span></div>
+                <p>{{ record.chronic_disease or 'No chronic conditions have been added.' }}</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="health-record-notes" aria-labelledby="lifestyle-title">
+        <div class="health-record-section-heading">
+            <div>
+                <p class="page-kicker">Daily habits</p>
+                <h3 id="lifestyle-title">Lifestyle information</h3>
+            </div>
+            <i class="bi bi-person-walking" aria-hidden="true"></i>
+        </div>
+        <div class="health-record-note-grid">
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-wind" aria-hidden="true"></i><span>Smoking status</span></div>
+                <p>{{ record.smoking_status or 'Not provided.' }}</p>
+            </article>
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-cup-straw" aria-hidden="true"></i><span>Alcohol use</span></div>
+                <p>{{ record.alcohol_use or 'Not provided.' }}</p>
+            </article>
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-heart-pulse" aria-hidden="true"></i><span>Exercise habits</span></div>
+                <p>{{ record.exercise_habits or 'Not provided.' }}</p>
+            </article>
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-egg-fried" aria-hidden="true"></i><span>Diet</span></div>
+                <p>{{ record.diet or 'Not provided.' }}</p>
+            </article>
+            {% if record.other_lifestyle %}
+            <article class="health-record-note">
+                <div class="health-record-note-title"><i class="bi bi-three-dots" aria-hidden="true"></i><span>Other notes</span></div>
+                <p>{{ record.other_lifestyle }}</p>
+            </article>
+            {% endif %}
+        </div>
+    </section>
+    {% else %}
+    <section class="health-record-empty app-card">
+        <div class="health-record-empty-icon"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i></div>
+        <p class="page-kicker">Ready when you are</p>
+        <h3>Build your health snapshot</h3>
+        <p class="text-muted">Add your vitals, allergies, and chronic conditions once, then keep them easy to find.</p>
+        <a class="btn btn-primary" href="{{ url_for('health_records.edit') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add health information</a>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

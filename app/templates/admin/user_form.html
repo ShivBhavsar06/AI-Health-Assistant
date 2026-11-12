@@ -1,0 +1,46 @@
+{% extends 'admin/_base.html' %}
+{% block title %}{{ 'Edit user' if account else 'Add user' }}{% endblock %}
+{% block admin_heading %}{{ 'Edit user' if account else 'Add user' }}{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('admin.users') }}">Users</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ 'Edit' if account else 'Add' }}</li>
+{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Administration</p>
+        <h2>{{ 'Edit user' if account else 'Add user' }}</h2>
+        <p class="text-muted mb-0">Patient account details.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="{{ url_for('admin.users') }}">Back to users</a>
+</div>
+<form class="section-panel" method="post">
+    <div class="row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-6"><label class="form-label">Full name</label><input class="form-control" name="full_name" value="{{ form.get('full_name', account.full_name if account else '') }}" required></div>
+        <div class="col-md-6"><label class="form-label">Username</label><input class="form-control" name="username" value="{{ form.get('username', account.username if account else '') }}" required></div>
+        <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{ form.get('email', account.email if account else '') }}" required></div>
+        <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input class="form-control" name="phone_number" value="{{ form.get('phone_number', account.phone_number if account else '') }}" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" data-phone-input>
+            <div class="form-text">Optional phone number.</div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Date of birth</label>
+            <input class="form-control" type="date" name="date_of_birth" value="{{ form.get('date_of_birth', account.date_of_birth if account else '') }}">
+            <div class="form-text">Optional profile information.</div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Gender</label>
+            <select class="form-select" name="gender">
+                <option value="">Select</option>
+                {% for item in ['Male', 'Female', 'Other'] %}
+                <option value="{{ item }}" {% if (form.get('gender') or (account.gender if account else '')) == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4"><label class="form-label">Password{% if account %} (leave blank to keep){% endif %}</label><input class="form-control" type="password" name="password" {% if not account %}required{% endif %}></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Save</button></div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'app_base.html' %}
+{% block title %}Report details{% endblock %}
+{% block page %}
+<div class="report-page report-detail-page">
+    <div class="page-header report-page-header">
+        <div>
+            <p class="page-kicker">Health library</p>
+            <h2>{{ report.report_name or report.report_id }}</h2>
+            <p class="text-muted mb-0">Your private medical document</p>
+        </div>
+        <div class="report-detail-actions">
+            <a class="btn btn-outline-primary" href="{{ url_for('medical_reports.list_reports') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i>All reports</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('medical_reports.edit', report_id=report.report_id) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Edit</a>
+            <form method="post" action="{{ url_for('medical_reports.delete', report_id=report.report_id) }}" data-confirm="Delete this report? This cannot be undone.">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-danger" type="submit" aria-label="Delete report" title="Delete report"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <section class="report-detail-hero" aria-label="Report summary">
+        <span class="report-detail-file-icon"><i class="bi bi-file-earmark-medical" aria-hidden="true"></i></span>
+        <div class="report-detail-hero-copy"><span class="report-detail-kicker">{{ report.report_type or 'Medical document' }}</span><h3>{{ report.report_name or report.report_id }}</h3><span class="report-detail-uploaded"><i class="bi bi-calendar3" aria-hidden="true"></i>Uploaded {{ report.upload_date.strftime('%B %d, %Y') if report.upload_date else 'date unavailable' }}</span></div>
+        {% if report.file_path %}<a class="btn btn-light report-open-button" href="{{ url_for('medical_reports.download', report_id=report.report_id) }}"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>Open document</a>{% endif %}
+    </section>
+
+    <section class="report-detail-content" aria-labelledby="report-notes-title">
+        <div class="report-detail-section-heading"><div><p class="page-kicker">Document notes</p><h3 id="report-notes-title">Description</h3></div><i class="bi bi-card-text" aria-hidden="true"></i></div>
+        <p class="report-description">{{ report.description or 'No notes have been added for this report.' }}</p>
+    </section>
+</div>
+{% endblock %}

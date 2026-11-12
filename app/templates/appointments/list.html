@@ -1,0 +1,52 @@
+{% extends 'app_base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block page %}
+<div class="appointment-page">
+<div class="page-header appointment-page-header">
+    <div>
+        <p class="page-kicker">Care schedule</p>
+        <h2>Appointments</h2>
+        <p class="text-muted mb-0">Keep your upcoming visits, locations, and appointment details together.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('appointments.add') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add appointment</a>
+</div>
+<section class="appointment-list-panel" aria-label="Your appointments">
+    <div class="appointment-list-toolbar">
+        <div class="appointment-list-count"><i class="bi bi-calendar2-heart" aria-hidden="true"></i><strong>{{ appointments|length }}</strong><span>{{ 'appointment' if appointments|length == 1 else 'appointments' }}</span></div>
+        <form class="appointment-search" method="get" role="search">
+            <label class="visually-hidden" for="appointmentSearch">Search appointments</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input class="form-control" id="appointmentSearch" type="search" name="q" value="{{ q }}" placeholder="Search doctor, hospital, or purpose">
+            {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('appointments.list_appointments') }}" aria-label="Clear appointment search"><i class="bi bi-x-lg" aria-hidden="true"></i></a>{% endif %}
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="table-responsive">
+    <table class="table align-middle appointment-table">
+        <thead><tr><th scope="col">Visit</th><th scope="col">Location</th><th scope="col">Date &amp; time</th><th scope="col">Purpose</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for item in appointments %}
+            <tr>
+                <td><div class="appointment-visit-cell"><span class="appointment-visit-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span><div><strong>{{ item.doctor_name or 'Doctor' }}</strong><span>Medical visit</span></div></div></td>
+                <td><span class="appointment-location"><i class="bi bi-geo-alt" aria-hidden="true"></i>{{ item.hospital_name or 'Location not set' }}</span></td>
+                <td><div class="appointment-datetime"><strong>{{ item.appointment_date }}</strong><span><i class="bi bi-clock" aria-hidden="true"></i>{{ item.appointment_time.strftime('%H:%M') if item.appointment_time else 'Time not set' }}</span></div></td>
+                <td><span class="appointment-purpose">{{ item.purpose or 'No purpose specified' }}</span></td>
+                <td><span class="badge badge-{{ item.status|lower }} appointment-status"><i class="bi {% if item.status == 'Upcoming' %}bi-clock-history{% elif item.status == 'Completed' %}bi-check-circle{% else %}bi-x-circle{% endif %}" aria-hidden="true"></i>{{ item.status }}</span></td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('appointments.edit', appointment_id=item.appointment_id) }}" aria-label="Edit appointment" title="Edit appointment"><i class="bi bi-pencil-square" aria-hidden="true"></i><span>Edit</span></a>
+                    <form class="d-inline" method="post" action="{{ url_for('appointments.delete', appointment_id=item.appointment_id) }}" data-confirm="Delete this appointment?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Delete appointment" title="Delete appointment"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6"><div class="appointment-empty"><span class="appointment-empty-icon"><i class="bi bi-calendar2-heart" aria-hidden="true"></i></span><strong>{{ 'No matching appointments' if q else 'No appointments scheduled' }}</strong><span>{{ 'Try a different search or clear the current filter.' if q else 'Add a visit to keep its time and location close at hand.' }}</span>{% if not q %}<a class="btn btn-primary btn-sm" href="{{ url_for('appointments.add') }}"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add appointment</a>{% endif %}</div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+</section>
+</div>
+{% endblock %}

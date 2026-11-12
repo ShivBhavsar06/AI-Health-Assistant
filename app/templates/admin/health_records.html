@@ -1,0 +1,47 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Health records{% endblock %}
+{% block admin_heading %}Health records{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Health records</li>{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Clinical</p>
+        <h1 class="h2">Health records</h1>
+        <p class="text-muted mb-0">One clinical record per patient.</p>
+    </div>
+</div>
+<form class="search-bar row g-2" method="get" role="search">
+    <div class="col-md">
+        <label class="form-label visually-hidden" for="healthSearch">Search health records</label>
+        <input class="form-control" id="healthSearch" name="q" value="{{ q }}" placeholder="Search patient, email, or blood group" type="search">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('admin.health_records') }}">Clear</a>{% endif %}
+    </div>
+</form>
+<div class="app-table table-responsive">
+    <table class="table align-middle">
+        <thead><tr><th scope="col">Patient</th><th scope="col">Blood group</th><th scope="col">Height</th><th scope="col">Weight</th><th scope="col">Allergies</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for record in records %}
+            <tr>
+                <td class="fw-semibold">{{ record.patient_name }}</td>
+                <td>{{ record.blood_group or '—' }}</td>
+                <td>{{ record.height or '—' }}</td>
+                <td>{{ record.weight or '—' }}</td>
+                <td>{{ record.allergies }}</td>
+                <td class="text-end text-nowrap">
+                    <form class="d-inline" method="post" action="{{ url_for('admin.delete_health_record', record_id=record.record_id) }}" data-confirm="Delete this health record?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="admin-empty-cell">No health records found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Manage users{% endblock %}
+{% block admin_heading %}Users{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Users</li>{% endblock %}
+{% block page %}
+<div class="admin-users">
+    <div class="page-header admin-users-header">
+        <div>
+            <p class="page-kicker">Directory</p>
+            <h1 class="h2">User directory</h1>
+            <p class="text-muted mb-0">Manage patient accounts and their contact details.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('admin.add_user') }}"><i class="bi bi-person-plus" aria-hidden="true"></i>Add user</a>
+    </div>
+
+    <form class="search-bar admin-users-search" method="get" role="search">
+        <label class="form-label visually-hidden" for="userSearch">Search users</label>
+        <div class="input-group">
+            <span class="input-group-text" aria-hidden="true"><i class="bi bi-search"></i></span>
+            <input class="form-control" id="userSearch" name="q" value="{{ q }}" placeholder="Search by name, username, email, or ID" type="search">
+        </div>
+        <div class="admin-users-search-actions">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+            {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('admin.users') }}">Clear</a>{% endif %}
+        </div>
+    </form>
+
+    <section class="app-table admin-users-table" aria-label="User accounts">
+        <div class="admin-users-table-heading">
+            <div>
+                <h2>Accounts</h2>
+                <p class="mb-0 text-muted">{% if q %}Matching accounts{% else %}All registered accounts{% endif %}</p>
+            </div>
+            <span class="admin-users-count">{{ pagination.total }} <span>{% if pagination.total == 1 %}account{% else %}accounts{% endif %}</span></span>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="admin-user-identity">
+                                <span class="admin-user-avatar" aria-hidden="true">{{ user.full_name[0]|upper }}</span>
+                                <span class="admin-user-copy">
+                                    <strong>{{ user.full_name }}</strong>
+                                    <small>{{ user.user_id }}</small>
+                                </span>
+                            </div>
+                        </td>
+                        <td><span class="admin-user-username">@{{ user.username }}</span></td>
+                        <td><a class="admin-user-email" href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                        <td>{{ user.phone_number or '—' }}</td>
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary admin-user-actions dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions for {{ user.full_name }}">
+                                    <i class="bi bi-three-dots" aria-hidden="true"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ url_for('admin.edit_user', user_id=user.user_id) }}"><i class="bi bi-pencil me-2" aria-hidden="true"></i>Edit user</a></li>
+                                    <li>
+                                        <form method="post" action="{{ url_for('admin.delete_user', user_id=user.user_id) }}" data-confirm="Delete this user and their records?">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button class="dropdown-item text-danger" type="submit"><i class="bi bi-trash me-2" aria-hidden="true"></i>Delete user</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="admin-empty-cell">
+                            <span class="admin-users-empty-icon" aria-hidden="true"><i class="bi bi-person-search"></i></span>
+                            <strong>{% if q %}No matching users{% else %}No users yet{% endif %}</strong>
+                            <span>{% if q %}Try another name, username, email, or ID.{% else %}Add a user to get started.{% endif %}</span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="admin-users-table-footer">
+            <span class="text-muted">
+                {% if pagination.total %}
+                    Showing {{ pagination.first }}–{{ pagination.last }} of {{ pagination.total }}
+                {% else %}
+                    0 accounts
+                {% endif %}
+            </span>
+            {% include 'includes/pagination.html' %}
+        </div>
+    </section>
+</div>
+{% endblock %}

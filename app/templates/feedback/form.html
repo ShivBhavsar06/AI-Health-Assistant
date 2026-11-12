@@ -1,0 +1,75 @@
+{% extends 'app_base.html' %}
+{% block title %}Feedback{% endblock %}
+{% block page %}
+<div class="feedback-page">
+    <div class="page-header feedback-page-header">
+        <div>
+            <p class="page-kicker">Your voice</p>
+            <h2>Feedback</h2>
+            <p class="text-muted mb-0">Share your experience with the health management system.</p>
+        </div>
+    </div>
+
+    <form class="feedback-composer app-card" method="post" action="{% if editing %}{{ url_for('feedback.edit', feedback_id=editing.feedback_id) }}{% else %}{{ url_for('feedback.create') }}{% endif %}">
+        <div class="feedback-composer-heading">
+            <span class="feedback-composer-icon"><i class="bi bi-chat-square-heart" aria-hidden="true"></i></span>
+            <div><p class="page-kicker">{{ 'Update your note' if editing else 'Your experience' }}</p><h3>{{ 'Edit feedback' if editing else 'Leave feedback' }}</h3></div>
+        </div>
+        <div class="feedback-composer-fields">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <fieldset class="feedback-rating-fieldset">
+                <legend>Your rating <span aria-hidden="true">*</span></legend>
+                {% set current_rating = submitted_rating|default(editing.rating if editing else 0, true)|float %}
+                <div class="feedback-star-picker">
+                    <span class="feedback-rating-hint">Click the eft or right half</span>
+                    {% for n in range(5, 0, -1) %}
+                    <div class="feedback-star-option">
+                        {% if n > 1 %}
+                        <input class="visually-hidden feedback-star-half" type="radio" id="feedback-rating-{{ n }}-half" name="rating" value="{{ n - 0.5 }}" aria-label="{{ n - 0.5 }} stars" {% if current_rating == n - 0.5 %}checked{% endif %}>
+                        <label class="feedback-half-hit-area" for="feedback-rating-{{ n }}-half" title="{{ n - 0.5 }} stars"><span class="visually-hidden">{{ n - 0.5 }} stars</span></label>
+                        {% endif %}
+                        <input class="visually-hidden feedback-star-full" type="radio" id="feedback-rating-{{ n }}-full" name="rating" value="{{ n }}" aria-label="{{ n }} {{ 'star' if n == 1 else 'stars' }}" {% if n == 1 %}required{% endif %} {% if current_rating == n %}checked{% endif %}>
+                        <label class="feedback-full-hit-area {% if n == 1 %}feedback-single-hit-area{% endif %}" for="feedback-rating-{{ n }}-full" title="{{ n }} {{ 'star' if n == 1 else 'stars' }}"><span class="visually-hidden">{{ n }} {{ 'star' if n == 1 else 'stars' }}</span></label>
+                        <span class="feedback-star-glyph" aria-hidden="true"><i class="bi bi-star"></i><i class="bi bi-star-fill"></i></span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </fieldset>
+            <div class="feedback-comment-field"><label class="form-label" for="feedback-comments">Comments <span class="text-muted fw-normal">(optional)</span></label><textarea class="form-control" id="feedback-comments" name="comments" rows="4" placeholder="What worked well, or what could be better?">{% if submitted_comments is defined %}{{ submitted_comments }}{% elif editing %}{{ editing.comments or '' }}{% endif %}</textarea></div>
+            <div class="feedback-form-actions">
+                {% if editing %}<a class="btn btn-outline-secondary" href="{{ url_for('feedback.create') }}">Cancel</a>{% endif %}
+                <button class="btn btn-primary" type="submit"><i class="bi bi-send" aria-hidden="true"></i>{{ 'Update feedback' if editing else 'Submit feedback' }}</button>
+            </div>
+        </div>
+    </form>
+
+    <section class="feedback-history" aria-labelledby="feedback-history-title">
+        <div class="feedback-history-heading">
+            <div><p class="page-kicker">Your notes</p><h3 id="feedback-history-title">Feedback history</h3></div>
+            <span class="feedback-history-count">{{ entries|length }} {{ 'entry' if entries|length == 1 else 'entries' }}</span>
+        </div>
+        {% for item in entries %}
+        <article class="feedback-entry-card">
+            <div class="feedback-entry-topline">
+                <div class="feedback-entry-rating" aria-label="Rating {{ item.rating }} out of 5">
+                    {% set rating_value = item.rating|float %}
+                    {% for n in range(1, 6) %}<i class="bi {% if rating_value >= n %}bi-star-fill is-filled{% elif rating_value >= n - 0.5 %}bi-star-half is-filled{% else %}bi-star{% endif %}" aria-hidden="true"></i>{% endfor %}
+                    <strong>{{ item.rating }}/5</strong>
+                </div>
+                <time class="feedback-entry-date" datetime="{{ item.feedback_date.isoformat() if item.feedback_date else '' }}"><i class="bi bi-calendar3" aria-hidden="true"></i>{{ item.feedback_date.strftime('%b %d, %Y') if item.feedback_date else 'Date unavailable' }}</time>
+                <div class="feedback-entry-actions">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('feedback.edit', feedback_id=item.feedback_id) }}" aria-label="Edit feedback" title="Edit feedback"><i class="bi bi-pencil-square" aria-hidden="true"></i></a>
+                    <form method="post" action="{{ url_for('feedback.delete', feedback_id=item.feedback_id) }}" data-confirm="Delete this feedback?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Delete feedback" title="Delete feedback"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+                    </form>
+                </div>
+            </div>
+            <p class="feedback-entry-comment">{{ item.comments or 'No written comment.' }}</p>
+        </article>
+        {% else %}
+        <div class="feedback-empty-state"><i class="bi bi-chat-square-text" aria-hidden="true"></i><strong>No feedback submitted yet</strong><span>Your feedback entries will appear here.</span></div>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

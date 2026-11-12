@@ -1,0 +1,49 @@
+{% extends 'app_base.html' %}
+{% block title %}Medicines{% endblock %}
+{% block page %}
+<div class="medicine-page">
+<div class="page-header medicine-page-header">
+    <div>
+        <p class="page-kicker">Treatment plan</p>
+        <h2>Medicines</h2>
+        <p class="text-muted mb-0">Your medicines, dose times, and treatment periods at a glance.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('medicines.add_medicine') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add medicine</a>
+</div>
+<section class="medicine-list-panel" aria-label="Your medicines">
+    <div class="medicine-list-toolbar">
+        <div class="medicine-list-count"><i class="bi bi-capsule-pill" aria-hidden="true"></i><strong>{{ medicines|length }}</strong><span>{{ 'medicine' if medicines|length == 1 else 'medicines' }}</span></div>
+        <form class="medicine-search" method="get" role="search">
+            <label class="visually-hidden" for="medicineSearch">Search medicines</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input class="form-control" id="medicineSearch" type="search" name="q" value="{{ q }}" placeholder="Search by medicine name">
+            {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('medicines.list_medicines') }}" aria-label="Clear medicine search"><i class="bi bi-x-lg" aria-hidden="true"></i></a>{% endif %}
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="table-responsive">
+    <table class="table align-middle medicine-table">
+        <thead><tr><th scope="col">Medicine</th><th scope="col">Dosage</th><th scope="col">Schedule</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for medicine in medicines %}
+            <tr>
+                <td><div class="medicine-name-cell"><span class="medicine-name-icon"><i class="bi bi-capsule" aria-hidden="true"></i></span><span class="fw-semibold">{{ medicine.medicine_name }}</span></div></td>
+                <td><strong class="medicine-dosage-value">{{ medicine.dosage or 'Not specified' }}</strong></td>
+                <td>
+                    {% set dose_times = [('morning', medicine.morning_time), ('afternoon', medicine.afternoon_time), ('evening', medicine.evening_time), ('night', medicine.night_time)] %}
+                    <div class="medicine-schedule-cell">
+                        <span class="medicine-dose-times"><i class="bi bi-clock" aria-hidden="true"></i>{% for label, time in dose_times if time %}{{ time.strftime('%H:%M') }}{% if not loop.last %}<span aria-hidden="true">·</span>{% endif %}{% else %}No dose times set{% endfor %}</span>
+                        <span class="medicine-date-range"><i class="bi bi-calendar3" aria-hidden="true"></i>{{ medicine.start_date or '—' }} <span aria-hidden="true">to</span> {{ medicine.end_date or '—' }}</span>
+                    </div>
+                </td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ url_for('medicines.detail', medicine_id=medicine.medicine_id) }}">View details<i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a></td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4"><div class="medicine-empty"><span class="medicine-empty-icon"><i class="bi bi-capsule" aria-hidden="true"></i></span><strong>{{ 'No matching medicines' if q else 'No medicines added yet' }}</strong><span>{{ 'Try another name or clear your search.' if q else 'Add a medicine to keep its dose times and treatment dates together.' }}</span>{% if not q %}<a class="btn btn-primary btn-sm" href="{{ url_for('medicines.add_medicine') }}"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add first medicine</a>{% endif %}</div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</section>
+</div>
+{% endblock %}

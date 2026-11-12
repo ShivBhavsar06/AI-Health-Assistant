@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block body_class %}auth-screen {% endblock %}
+{% block content %}
+<div class="auth-shell auth-shell-login">
+    <section class="auth-login-aside" aria-label="HealthMate AI">
+        <div class="auth-login-brand">
+            {% include 'includes/brand_mark.html' %}
+            <span><strong>HealthMate AI</strong><small>Personal health workspace</small></span>
+        </div>
+        <div class="auth-login-message">
+            <p class="auth-login-kicker">Your health, in one place</p>
+            <h1>Welcome<br>back.</h1>
+            <p>Sign in to continue to your personal health workspace.</p>
+        </div>
+        <div class="auth-login-trust"><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Private account access</span></div>
+        <div class="auth-login-watermark" aria-hidden="true"><i class="bi bi-heart-pulse"></i></div>
+    </section>
+
+    <section class="auth-login-form-panel" aria-labelledby="login-title">
+        <div class="auth-login-form-heading">
+            <p class="page-kicker">Account access</p>
+            <h2 id="login-title">Sign in</h2>
+            <p class="text-muted">Use your email or username to continue.</p>
+        </div>
+        <form method="post" class="validated-form auth-login-form" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label class="form-label" for="loginIdentifier">Email or username</label>
+                <input class="form-control" id="loginIdentifier" type="text" name="identifier" value="{{ form.identifier }}" autocomplete="username" required>
+                <div class="invalid-feedback">Enter your email or username.</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="loginPassword">Password</label>
+                <div class="password-field">
+                    <input class="form-control" id="loginPassword" type="password" name="password" autocomplete="current-password" required>
+                    <button class="btn password-toggle" type="button" aria-label="Show password" title="Show password"><i class="bi bi-eye"></i></button>
+                </div>
+                <div class="invalid-feedback">Enter your password.</div>
+            </div>
+            <div class="auth-login-options">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="remember_me" value="1" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+                <a href="{{ url_for('auth.forgot_password') }}">Forgot password?</a>
+            </div>
+            <button class="btn btn-primary auth-login-submit" type="submit">Sign in<i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+        </form>
+        <p class="auth-login-register">New to HealthMate? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+        <div class="auth-login-footer"><i class="bi bi-info-circle" aria-hidden="true"></i><span>For general health information only. Not a substitute for professional care.</span></div>
+    </section>
+</div>
+{% endblock %}

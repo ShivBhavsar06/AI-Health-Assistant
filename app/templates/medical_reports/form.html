@@ -1,0 +1,27 @@
+{% extends 'app_base.html' %}
+{% block title %}{{ 'Update report' if report else 'Upload report' }}{% endblock %}
+{% block page %}
+<div class="report-page report-form-page">
+<div class="page-header report-page-header">
+    <div>
+        <p class="page-kicker">Health library</p>
+        <h2>{{ 'Update report' if report else 'Upload report' }}</h2>
+        <p class="text-muted mb-0">Organize a medical document with a name, category, and notes.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="{{ url_for('medical_reports.detail', report_id=report.report_id) if report else url_for('medical_reports.list_reports') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i>{{ 'Back to report' if report else 'Back to reports' }}</a>
+</div>
+<form class="card app-card report-form-card" method="post" enctype="multipart/form-data">
+    <div class="card-body row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-12 report-form-section-heading"><span class="report-form-section-icon"><i class="bi bi-card-heading" aria-hidden="true"></i></span><div><h3>Report information</h3><p>Name it so you can find it later.</p></div></div>
+        <div class="col-md-6"><label class="form-label" for="report_name">Report name</label><input class="form-control" id="report_name" name="report_name" value="{{ report.report_name if report else '' }}" required placeholder="e.g. Blood test results"></div>
+        <div class="col-md-6"><label class="form-label" for="report_type">Category</label><input class="form-control" id="report_type" name="report_type" value="{{ report.report_type if report else '' }}" placeholder="e.g. Lab result, imaging, prescription"></div>
+        <div class="col-12"><label class="form-label" for="description">Notes</label><textarea class="form-control" id="description" name="description" rows="3" placeholder="Optional details about this document">{{ report.description if report else '' }}</textarea></div>
+        <div class="col-12 report-form-section-heading"><span class="report-form-section-icon report-file-section-icon"><i class="bi bi-paperclip" aria-hidden="true"></i></span><div><h3>Document file</h3><p>Files are private to your account. PDF, Word, or image files up to 5 MB.</p></div></div>
+        {% if report and report.file_path %}<div class="col-12"><a class="report-current-file" href="{{ url_for('medical_reports.download', report_id=report.report_id) }}"><i class="bi bi-file-earmark-check" aria-hidden="true"></i><span>Current file attached</span><span>Open file<i class="bi bi-arrow-up-right ms-1" aria-hidden="true"></i></span></a></div>{% endif %}
+        <div class="col-12 report-file-picker"><label class="form-label" for="report_file">{{ 'Replace file (optional)' if report else 'Choose a file' }}</label><input class="form-control" id="report_file" type="file" name="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" {% if not report %}required{% endif %}><span class="report-file-hint">{{ 'Leave empty to keep the current file.' if report else 'Accepted: PDF, DOC, DOCX, PNG, JPG, JPEG. Maximum size: 5 MB.' }}</span></div>
+        <div class="col-12 report-form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('medical_reports.detail', report_id=report.report_id) if report else url_for('medical_reports.list_reports') }}">Cancel</a><button class="btn btn-primary" type="submit"><i class="bi bi-check2" aria-hidden="true"></i>{{ 'Save changes' if report else 'Upload report' }}</button></div>
+    </div>
+</form>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Manage appointments{% endblock %}
+{% block admin_heading %}Appointments{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Appointments</li>{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Schedule</p>
+        <h1 class="h2">Appointments</h1>
+        <p class="text-muted mb-0">Doctor visits across all patients.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.add_appointment') }}"><i class="bi bi-plus-lg" aria-hidden="true"></i>Add appointment</a>
+</div>
+<form class="search-bar row g-2" method="get" role="search">
+    <div class="col-md">
+        <label class="form-label visually-hidden" for="appointmentSearch">Search appointments</label>
+        <input class="form-control" id="appointmentSearch" name="q" value="{{ q }}" placeholder="Search doctor, hospital, purpose, or patient" type="search">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('admin.appointments') }}">Clear</a>{% endif %}
+    </div>
+</form>
+<div class="app-table table-responsive">
+    <table class="table align-middle">
+        <thead><tr><th scope="col">Patient</th><th scope="col">Doctor</th><th scope="col">Hospital</th><th scope="col">When</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for item in appointments %}
+            <tr>
+                <td>{{ item.user.full_name if item.user else item.user_id }}</td>
+                <td class="fw-semibold">{{ item.doctor_name or '—' }}</td>
+                <td>{{ item.hospital_name or '—' }}</td>
+                <td>{{ item.appointment_date or '—' }}{% if item.appointment_time %} · {{ item.appointment_time.strftime('%H:%M') }}{% endif %}</td>
+                <td><span class="badge badge-{{ item.status|lower }}">{{ item.status }}</span></td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.edit_appointment', appointment_id=item.appointment_id) }}">Edit</a>
+                    <form class="d-inline" method="post" action="{{ url_for('admin.delete_appointment', appointment_id=item.appointment_id) }}" data-confirm="Delete this appointment?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="admin-empty-cell">No appointments found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

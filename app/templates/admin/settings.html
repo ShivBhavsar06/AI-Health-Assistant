@@ -1,0 +1,94 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Admin settings{% endblock %}
+{% block admin_heading %}Settings{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Settings</li>{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Workspace</p>
+        <h1 class="h2">Settings</h1>
+        <p class="text-muted mb-0">Manage your administrator account and review protected system status.</p>
+    </div>
+</div>
+<div class="row g-4 admin-settings-grid">
+    <div class="col-xl-8">
+        <section class="card app-card settings-card settings-form-card">
+            <div class="card-body">
+                <div class="settings-card-heading">
+                    <span class="settings-card-icon" aria-hidden="true"><i class="bi bi-person-gear"></i></span>
+                    <div><p class="page-kicker mb-1">Account settings</p><h2>Administrator profile</h2><p class="text-muted mb-0">Update the name and email used for your administrator account.</p></div>
+                </div>
+                <form method="post" class="row g-3 settings-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="profile">
+                    <div class="col-md-6"><label class="form-label" for="adminName">Admin name</label><input class="form-control" id="adminName" name="full_name" value="{{ form.full_name }}" maxlength="100" required></div>
+                    <div class="col-md-6"><label class="form-label" for="adminEmail">Email</label><input class="form-control" id="adminEmail" type="email" name="email" value="{{ form.email }}" maxlength="150" required></div>
+                    <div class="col-12"><button class="btn btn-primary" type="submit"><i class="bi bi-check2" aria-hidden="true"></i>Save profile</button></div>
+                </form>
+            </div>
+        </section>
+        <section class="card app-card settings-card settings-form-card">
+            <div class="card-body">
+                <div class="settings-card-heading">
+                    <span class="settings-card-icon settings-card-icon-security" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+                    <div><p class="page-kicker mb-1">Account security</p><h2>Change password</h2><p class="text-muted mb-0">Use at least 8 characters, including a letter and a number.</p></div>
+                </div>
+                <form method="post" class="row g-3 settings-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="password">
+                    <div class="col-12"><label class="form-label" for="currentPassword">Current password</label><input class="form-control" id="currentPassword" type="password" name="current_password" autocomplete="current-password" required></div>
+                    <div class="col-md-6"><label class="form-label" for="newPassword">New password</label><input class="form-control" id="newPassword" type="password" name="new_password" minlength="8" autocomplete="new-password" required></div>
+                    <div class="col-md-6"><label class="form-label" for="confirmPassword">Confirm password</label><input class="form-control" id="confirmPassword" type="password" name="confirm_password" minlength="8" autocomplete="new-password" required></div>
+                    <div class="col-12"><button class="btn btn-primary" type="submit"><i class="bi bi-key" aria-hidden="true"></i>Update password</button></div>
+                </form>
+            </div>
+        </section>
+    </div>
+    <div class="col-xl-4 admin-settings-aside">
+        <section class="card app-card settings-card">
+            <div class="card-body">
+                <div class="settings-card-heading settings-card-heading-compact">
+                    <span class="settings-card-icon" aria-hidden="true"><i class="bi bi-display"></i></span>
+                    <div><p class="page-kicker mb-1">Appearance</p><h2>Display</h2></div>
+                </div>
+                <p class="text-muted settings-card-description">Choose a theme for this device.</p>
+                <div class="segmented-control settings-theme-control" role="group" aria-label="Display mode">
+                    <button class="btn" type="button" data-theme-choice="light"><i class="bi bi-sun" aria-hidden="true"></i>Light</button>
+                    <button class="btn" type="button" data-theme-choice="dark"><i class="bi bi-moon-stars" aria-hidden="true"></i>Dark</button>
+                </div>
+            </div>
+        </section>
+        <section class="card app-card settings-card">
+            <div class="card-body">
+                <div class="settings-card-heading settings-card-heading-compact">
+                    <span class="settings-card-icon settings-card-icon-system" aria-hidden="true"><i class="bi bi-activity"></i></span>
+                    <div><p class="page-kicker mb-1">System settings</p><h2>Configuration</h2></div>
+                </div>
+                <dl class="settings-status-list mb-0">
+                    <div><dt>Application</dt><dd>HealthMate AI</dd></div>
+                    <div><dt>Email</dt><dd><span class="status-dot {{ 'is-ready' if email_configured else 'is-muted' }}"></span>{{ 'Configured' if email_configured else 'Not configured' }}</dd></div>
+                    <div><dt>AI services</dt><dd><span class="status-dot {{ 'is-ready' if ai_configured else 'is-muted' }}"></span>{{ 'Configured' if ai_configured else 'Not configured' }}</dd></div>
+                </dl>
+                <p class="form-text mt-3 mb-0">Credentials and API keys are never displayed here.</p>
+            </div>
+        </section>
+        <section class="card app-card settings-card">
+            <div class="card-body">
+                <div class="settings-card-heading settings-card-heading-compact">
+                    <span class="settings-card-icon settings-card-icon-security" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+                    <div><p class="page-kicker mb-1">Security</p><h2>Session settings</h2></div>
+                </div>
+                <dl class="settings-status-list mb-0">
+                    <div><dt>Secure cookies</dt><dd>{{ 'Enabled' if session_cookie_secure else 'Development mode' }}</dd></div>
+                    <div><dt>HttpOnly cookies</dt><dd>{{ 'Enabled' if session_cookie_httponly else 'Disabled' }}</dd></div>
+                    <div><dt>Remember Me</dt><dd>{{ session_lifetime_days }} days</dd></div>
+                </dl>
+                <form method="post" action="{{ url_for('admin.logout') }}" class="settings-logout-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-outline-danger" type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Log out</button>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

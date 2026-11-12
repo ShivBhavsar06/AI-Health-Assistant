@@ -1,0 +1,40 @@
+<div class="row g-4 chart-gallery">
+    <div class="col-lg-7">
+        <div class="card app-card h-100">
+            <div class="card-body">
+                <p class="page-kicker mb-1">Bar chart</p>
+                <h5 class="mb-3">Health activity</h5>
+                <div class="chart-frame"><canvas id="activityBarChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card app-card h-100">
+            <div class="card-body">
+                <p class="page-kicker mb-1">Pie chart</p>
+                <h5 class="mb-3">Record mix</h5>
+                <div class="chart-frame chart-frame-round"><canvas id="activityPieChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card app-card h-100">
+            <div class="card-body">
+                <p class="page-kicker mb-1">Doughnut chart</p>
+                <h5 class="mb-3">Activity share</h5>
+                <div class="chart-frame chart-frame-round"><canvas id="activityDoughnutChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card app-card h-100">
+            <div class="card-body">
+                <p class="page-kicker mb-1">Polar chart</p>
+                <h5 class="mb-3">Reminder status</h5>
+                <div class="chart-frame chart-frame-wide"><canvas id="reminderPolarChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="application/json" id="activityChartData">{{ chart_activity|tojson }}</script>
+<script type="application/json" id="reminderChartData">{{ chart_reminders|tojson }}</script>

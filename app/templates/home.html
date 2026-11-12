@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Home - {{ SITE_NAME }}{% endblock %}
+{% block main_class %}{% endblock %}
+{% block content %}
+<section class="hero-section home-hero home-hero-section">
+    <div class="container-xl home-hero-container">
+        <div class="home-hero-grid">
+            <div class="home-hero-copy">
+                <p class="home-hero-kicker"><i class="bi bi-heart-pulse" aria-hidden="true"></i>Personal health workspace</p>
+                <h1>HealthMate AI</h1>
+                <p class="home-hero-summary">Your health information, together in one calm workspace.</p>
+                <p class="home-hero-description">Manage medicines, appointments, reports, and health records with simple reminders and general health guidance.</p>
+                <div class="home-hero-actions">
+                    <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}"><i class="bi bi-person-plus" aria-hidden="true"></i>Get started</a>
+                    <a class="btn btn-outline-primary btn-lg" href="{{ url_for('auth.login') }}"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>Sign in</a>
+                </div>
+                <p class="home-hero-assurance"><i class="bi bi-shield-check" aria-hidden="true"></i>Private records with secure account access</p>
+            </div>
+            <aside class="home-workspace-preview" aria-label="HealthMate workspace overview">
+                <div class="home-preview-topbar">
+                    {% include 'includes/brand_mark.html' %}
+                    <span><strong>My workspace</strong><small>Personal health overview</small></span>
+                    <i class="bi bi-three-dots" aria-hidden="true"></i>
+                </div>
+                <div class="home-preview-body">
+                    <p class="home-preview-eyebrow">YOUR HEALTH, ORGANIZED</p>
+                    <div class="home-preview-row">
+                        <span class="home-preview-icon home-preview-medicine"><i class="bi bi-capsule" aria-hidden="true"></i></span>
+                        <span><strong>Medicine schedule</strong><small>Doses and reminders</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </div>
+                    <div class="home-preview-row">
+                        <span class="home-preview-icon home-preview-appointment"><i class="bi bi-calendar2-heart" aria-hidden="true"></i></span>
+                        <span><strong>Appointments</strong><small>Visits and follow-ups</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </div>
+                    <div class="home-preview-row">
+                        <span class="home-preview-icon home-preview-record"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i></span>
+                        <span><strong>Health records</strong><small>Personal details and reports</small></span>
+                        <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="home-preview-footer"><i class="bi bi-lock" aria-hidden="true"></i>Your records stay in your account</div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="py-5 home-features">
+    <div class="container-xl">
+        <div class="section-intro"><p class="page-kicker mb-2">A simpler routine</p><h2 class="section-title mb-2">Everything you need to stay organized</h2><p class="text-muted mb-0">Clear tools for everyday health management, without unnecessary complexity.</p></div>
+        <div class="row g-4 mt-1">
+            <div class="col-md-6 col-lg-4"><article class="feature-card h-100"><i class="bi bi-capsule home-feature-icon"></i><h5>Medicine management</h5><p class="mb-0 text-muted">Save doses, instructions, dates, and reminder times in one place.</p></article></div>
+            <div class="col-md-6 col-lg-4"><article class="feature-card h-100"><i class="bi bi-calendar2-heart home-feature-icon"></i><h5>Appointments</h5><p class="mb-0 text-muted">Keep doctor, hospital, purpose, and visit timing together.</p></article></div>
+            <div class="col-md-6 col-lg-4"><article class="feature-card h-100"><i class="bi bi-file-earmark-medical home-feature-icon"></i><h5>Medical reports</h5><p class="mb-0 text-muted">Upload and privately review your own reports and documents.</p></article></div>
+            <div class="col-md-6 col-lg-4"><article class="feature-card h-100"><i class="bi bi-clipboard2-pulse home-feature-icon"></i><h5>Health records</h5><p class="mb-0 text-muted">Maintain one clear record for vitals, allergies, and conditions.</p></article></div>
+            <div class="col-md-6 col-lg-4"><article class="feature-card h-100"><i class="bi bi-bell home-feature-icon"></i><h5>Helpful reminders</h5><p class="mb-0 text-muted">See upcoming doses and visits before they slip past you.</p></article></div>
+            <div class="col-md-6 col-lg-4"><article class="feature-card h-100"><i class="bi bi-stars home-feature-icon"></i><h5>HealthMate AI Assistant</h5><p class="mb-0 text-muted">Ask general questions using a private, current-user context.</p></article></div>
+        </div>
+    </div>
+</section>
+
+<section id="assistant" class="py-5 section-alt">
+    <div class="container-xl"><div class="row align-items-center g-4 home-split">
+        <div class="col-lg-6"><span class="home-section-icon"><i class="bi bi-stars"></i></span><p class="page-kicker mt-3 mb-2">HealthMate AI Assistant</p><h2 class="section-title mb-3">A clearer starting point for health questions.</h2><p class="text-muted mb-4">Ask about information in your workspace or request a general health explanation. The assistant is designed to inform and organize, not diagnose or replace professional care.</p><a class="btn btn-primary" href="{{ url_for('ai.chat') if current_user else url_for('auth.login') }}">{{ 'Open AI assistant' if current_user else 'Sign in to ask a question' }}<i class="bi bi-arrow-right ms-2"></i></a></div>
+        <div class="col-lg-6"><div class="home-info-panel"><div><i class="bi bi-chat-left-text"></i><strong>Ask clearly</strong><span>Use everyday language about your health information.</span></div><div><i class="bi bi-shield-check"></i><strong>Stay grounded</strong><span>Responses use permitted current-user context only.</span></div><div><i class="bi bi-person-check"></i><strong>Know the limits</strong><span>Always consult a qualified professional for medical advice.</span></div></div></div>
+    </div></div>
+</section>
+
+<section id="health-management" class="py-5">
+    <div class="container-xl"><div class="section-intro"><p class="page-kicker mb-2">Health management</p><h2 class="section-title mb-2">Four practical parts of your routine</h2><p class="text-muted mb-0">Start with the part that will make today easier.</p></div>
+        <div class="row g-4 mt-1">
+            <div class="col-md-6"><article class="home-service-card"><div class="home-service-icon"><i class="bi bi-capsule"></i></div><div><h5>Medicine reminders</h5><p>Track dose times and treatment dates, then see reminders in your workspace.</p><a href="{{ url_for('medicines.list_medicines') if current_user else url_for('auth.login') }}">Manage medicines <i class="bi bi-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6"><article class="home-service-card"><div class="home-service-icon"><i class="bi bi-clipboard2-pulse"></i></div><div><h5>Medical records</h5><p>Keep important health details and private reports ready when you need them.</p><a href="{{ url_for('health_records.detail') if current_user else url_for('auth.login') }}">View health records <i class="bi bi-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6"><article class="home-service-card"><div class="home-service-icon"><i class="bi bi-calendar2-heart"></i></div><div><h5>Appointments</h5><p>Remember who you are seeing, where, and when, with a reminder for the visit.</p><a href="{{ url_for('appointments.list_appointments') if current_user else url_for('auth.login') }}">Manage appointments <i class="bi bi-arrow-right"></i></a></div></article></div>
+            <div class="col-md-6"><article class="home-service-card"><div class="home-service-icon"><i class="bi bi-file-earmark-medical"></i></div><div><h5>Reports and documents</h5><p>Upload supported files securely and keep your medical documents organized.</p><a href="{{ url_for('medical_reports.list_reports') if current_user else url_for('auth.login') }}">View reports <i class="bi bi-arrow-right"></i></a></div></article></div>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="py-5 section-alt">
+    <div class="container-xl"><div class="row align-items-center g-4"><div class="col-lg-7"><p class="page-kicker mb-2">About HealthMate AI</p><h2 class="section-title mb-3">Designed for real life, from students to older adults.</h2><p class="text-muted mb-0">Simple labels, obvious actions, and one organized workspace help you manage health information whether you are keeping track of your own routine or supporting someone you care about.</p></div><div class="col-lg-5"><div class="home-stat-panel"><div><strong><i class="bi bi-check2-circle"></i></strong><span>Clear, guided actions</span></div><div><strong><i class="bi bi-lock"></i></strong><span>Private account records</span></div><div><strong><i class="bi bi-phone"></i></strong><span>Responsive on every screen</span></div></div></div></div></div>
+</section>
+
+<section id="user-feedback" class="py-5">
+    <div class="container-xl"><div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3 mb-4"><div><p class="page-kicker mb-2">Community feedback</p><h2 class="section-title mb-2">What Our Users Say</h2><p class="text-muted mb-0">Real experiences shared by people using the health workspace.</p></div><a class="btn btn-outline-primary" href="{{ url_for('feedback.create') if current_user else url_for('auth.login') }}">Give Feedback</a></div>
+        {% if feedback_entries %}
+        <div class="row g-4">
+            {% for entry in feedback_entries %}
+            <div class="col-md-6 col-lg-4">
+                <article class="feedback-card h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h5 class="mb-1">{{ entry.user.full_name }}</h5>
+                            <small class="text-muted">{{ entry.feedback_date.strftime('%b %d, %Y') if entry.feedback_date else '' }}</small>
+                        </div>
+                        <div class="feedback-rating" aria-label="{{ entry.rating }} out of 5 stars">
+                            {% set rating_value = entry.rating|float %}
+                            {% for star in range(1, 6) %}
+                            <i class="bi {% if rating_value >= star %}bi-star-fill{% elif rating_value >= star - 0.5 %}bi-star-half{% else %}bi-star{% endif %}" aria-hidden="true"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="mb-0">&ldquo;{{ entry.comments or 'Rating only' }}&rdquo;</p>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="feedback-empty-state"><i class="bi bi-chat-square-heart" aria-hidden="true"></i><h5>No feedback yet. Be the first to share your experience.</h5><p class="text-muted mb-3">Your feedback helps us improve the health workspace.</p><a class="btn btn-primary" href="{{ url_for('feedback.create') if current_user else url_for('auth.login') }}">Give Feedback</a></div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="py-5 home-disclaimer"><div class="container-xl"><div class="row align-items-center g-4"><div class="col-lg-8"><p class="page-kicker mb-2">Medical disclaimer</p><h2 class="section-title mb-2">Information to support your decisions, not replace professional care.</h2><p class="mb-0 text-muted">HealthMate AI is for informational and health-management assistance only. It is not a substitute for diagnosis, treatment, or emergency care.</p></div><div class="col-lg-4 text-lg-end"><a class="btn btn-outline-primary" href="{{ url_for('main.medical_disclaimer') }}">Read the disclaimer</a></div></div></div></section>
+
+{% endblock %}

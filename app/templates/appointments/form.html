@@ -1,0 +1,36 @@
+{% extends 'app_base.html' %}
+{% block title %}{{ 'Edit appointment' if appointment else 'Add appointment' }}{% endblock %}
+{% block page %}
+<div class="appointment-page appointment-form-page">
+<div class="page-header appointment-page-header">
+    <div>
+        <p class="page-kicker">Care schedule</p>
+        <h2>{{ 'Edit appointment' if appointment else 'Add appointment' }}</h2>
+        <p class="text-muted mb-0">Add the visit details and schedule a reminder for its date and time.</p>
+    </div>
+    <a class="btn btn-outline-primary" href="{{ url_for('appointments.list_appointments') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i>Back to appointments</a>
+</div>
+<form class="card app-card appointment-form-card" method="post">
+    <div class="card-body row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-12 appointment-form-section-heading"><span class="appointment-form-section-icon"><i class="bi bi-person-badge" aria-hidden="true"></i></span><div><h3>Visit details</h3><p>Who you are seeing and where</p></div></div>
+        <div class="col-md-6"><label class="form-label" for="doctor_name">Doctor name</label><input class="form-control" id="doctor_name" name="doctor_name" value="{{ form.get('doctor_name', appointment.doctor_name if appointment else '') }}" required></div>
+        <div class="col-md-6"><label class="form-label" for="hospital_name">Hospital or clinic</label><input class="form-control" id="hospital_name" name="hospital_name" value="{{ form.get('hospital_name', appointment.hospital_name if appointment else '') }}" placeholder="Optional"></div>
+        <div class="col-12 appointment-form-section-heading"><span class="appointment-form-section-icon appointment-form-time-icon"><i class="bi bi-calendar2-week" aria-hidden="true"></i></span><div><h3>Date, time, and status</h3><p>A reminder will be created for the scheduled visit.</p></div></div>
+        <div class="col-md-4"><label class="form-label" for="appointment_date">Date</label><input class="form-control" id="appointment_date" type="date" name="appointment_date" value="{{ form.get('appointment_date', appointment.appointment_date if appointment else '') }}" required></div>
+        <div class="col-md-4"><label class="form-label" for="appointment_time">Time</label><input class="form-control" id="appointment_time" type="time" name="appointment_time" value="{{ form.get('appointment_time', appointment.appointment_time.strftime('%H:%M') if appointment and appointment.appointment_time else '') }}" required></div>
+        <div class="col-md-4">
+            <label class="form-label" for="status">Status</label>
+            <select class="form-select" id="status" name="status">
+                {% for item in ['Upcoming', 'Completed', 'Cancelled'] %}
+                <option value="{{ item }}" {% if (form.get('status') or (appointment.status if appointment else 'Upcoming')) == item %}selected{% endif %}>{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 appointment-form-section-heading"><span class="appointment-form-section-icon appointment-form-notes-icon"><i class="bi bi-card-text" aria-hidden="true"></i></span><div><h3>Visit purpose</h3><p>Add a short note to help you prepare.</p></div></div>
+        <div class="col-12"><label class="visually-hidden" for="purpose">Purpose</label><textarea class="form-control" id="purpose" name="purpose" rows="3" placeholder="What is this visit for?">{{ form.get('purpose', appointment.purpose if appointment else '') }}</textarea></div>
+        <div class="col-12 appointment-form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('appointments.list_appointments') }}">Cancel</a><button class="btn btn-primary" type="submit"><i class="bi bi-check2" aria-hidden="true"></i>{{ 'Save changes' if appointment else 'Save appointment' }}</button></div>
+    </div>
+</form>
+</div>
+{% endblock %}

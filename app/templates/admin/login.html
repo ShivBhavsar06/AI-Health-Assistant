@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block body_class %}auth-screen {% endblock %}
+{% block content %}
+<div class="auth-shell">
+    <div class="card app-card auth-card">
+        <div class="card-body text-center">
+            <div class="auth-brand d-flex justify-content-center">{% include 'includes/brand_mark.html' %}</div>
+            <h3 class="mb-3">Sign in</h3>
+            <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Go to login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

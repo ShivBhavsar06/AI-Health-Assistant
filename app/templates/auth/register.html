@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Get started{% endblock %}
+{% block body_class %}auth-screen {% endblock %}
+{% block content %}
+<div class="auth-shell auth-shell-login auth-shell-register">
+    <section class="auth-login-aside auth-register-aside" aria-label="HealthMate AI">
+        <div class="auth-login-brand">
+            {% include 'includes/brand_mark.html' %}
+            <span><strong>HealthMate AI</strong><small>Personal health workspace</small></span>
+        </div>
+        <div class="auth-login-message">
+            <p class="auth-login-kicker">A more organized health routine</p>
+            <h1>Start with<br>care.</h1>
+            <p>Create your private workspace for the details you want to keep close.</p>
+        </div>
+        <div class="auth-login-trust"><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Your account and records stay private</span></div>
+        <div class="auth-login-watermark" aria-hidden="true"><i class="bi bi-heart-pulse"></i></div>
+    </section>
+
+    <section class="auth-login-form-panel auth-register-form-panel" aria-labelledby="register-title">
+        <div class="auth-login-form-heading">
+            <p class="page-kicker">Get started</p>
+            <h2 id="register-title">Create your account</h2>
+            <p class="text-muted">A few details to set up your workspace.</p>
+        </div>
+        <form method="post" class="validated-form auth-login-form auth-register-form" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="auth-register-fields">
+                <div class="auth-register-field">
+                    <label class="form-label" for="registerName">Full name</label>
+                    <input class="form-control" id="registerName" name="full_name" value="{{ form.full_name }}" autocomplete="name" required>
+                    <div class="invalid-feedback">Enter your full name.</div>
+                </div>
+                <div class="auth-register-field">
+                    <label class="form-label" for="registerUsername">Username</label>
+                    <input class="form-control" id="registerUsername" name="username" value="{{ form.username }}" pattern="[A-Za-z0-9_.-]{3,50}" autocomplete="username" required>
+                    <div class="invalid-feedback">Use 3 to 50 letters, numbers, dots, hyphens, or underscores.</div>
+                </div>
+                <div class="auth-register-field">
+                    <label class="form-label" for="registerEmail">Email</label>
+                    <input class="form-control" id="registerEmail" type="email" name="email" value="{{ form.email }}" autocomplete="email" required>
+                    <div class="invalid-feedback">Enter a valid email address.</div>
+                </div>
+                <div class="auth-register-field">
+                    <label class="form-label" for="registerPhone">Phone</label>
+                    <input class="form-control" id="registerPhone" name="phone_number" value="{{ form.phone_number }}" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" autocomplete="tel" data-phone-input required>
+                    <div class="invalid-feedback">Enter a valid phone number.</div>
+                </div>
+                <div class="auth-register-field auth-register-field-wide">
+                    <label class="form-label" for="registerDob">Date of birth <span class="text-muted fw-normal">(optional)</span></label>
+                    <input class="form-control" id="registerDob" type="date" name="date_of_birth" value="{{ form.date_of_birth }}" autocomplete="bday">
+                    <div class="form-text">Used only for your profile information.</div>
+                    <div class="invalid-feedback">Enter a valid date of birth.</div>
+                </div>
+                <div class="auth-register-field">
+                    <label class="form-label" for="registerPassword">Password</label>
+                    <div class="password-field">
+                        <input class="form-control" id="registerPassword" type="password" name="password" minlength="8" pattern="(?=.*[A-Za-z])(?=.*\d).{8,}" autocomplete="new-password" required>
+                        <button class="btn password-toggle" type="button" aria-label="Show password" title="Show password"><i class="bi bi-eye"></i></button>
+                    </div>
+                    <div class="form-text">At least 8 characters, including a letter and a number.</div>
+                    <div class="invalid-feedback">Password must include at least 8 characters, a letter, and a number.</div>
+                </div>
+                <div class="auth-register-field">
+                    <label class="form-label" for="registerConfirmPassword">Confirm password</label>
+                    <div class="password-field">
+                        <input class="form-control" id="registerConfirmPassword" type="password" name="confirm_password" autocomplete="new-password" required>
+                        <button class="btn password-toggle" type="button" aria-label="Show password" title="Show password"><i class="bi bi-eye"></i></button>
+                    </div>
+                    <div class="invalid-feedback">Confirm your password.</div>
+                </div>
+            </div>
+            <button class="btn btn-primary auth-login-submit auth-register-submit" type="submit">Create account<i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+        </form>
+        <p class="auth-login-register">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+        <div class="auth-login-footer"><i class="bi bi-info-circle" aria-hidden="true"></i><span>For general health information only. Not a substitute for professional care.</span></div>
+    </section>
+</div>
+{% endblock %}

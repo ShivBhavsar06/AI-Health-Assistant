@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Recovery options{% endblock %}
+{% block body_class %}auth-screen {% endblock %}
+{% block content %}
+<div class="auth-recovery-layout">
+    <section class="auth-recovery-aside" aria-label="Account recovery information">
+        <div class="auth-recovery-brand">
+            {% include 'includes/brand_mark.html' %}
+            <span><strong>HealthMate AI</strong><small>Personal health workspace</small></span>
+        </div>
+        <div class="auth-recovery-message">
+            <span class="auth-recovery-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+            <p class="auth-recovery-kicker">Account recovery</p>
+            <h1>Your email is verified.</h1>
+            <p>Choose the next step that gets you back into your HealthMate account.</p>
+        </div>
+        <div class="auth-recovery-trust"><i class="bi bi-lock" aria-hidden="true"></i><span>Your account details stay protected.</span></div>
+    </section>
+
+    <section class="auth-recovery-form-panel" aria-labelledby="recovery-options-title">
+        <div class="auth-recovery-form-heading">
+            <p class="page-kicker">Step 3 of 3</p>
+            <h2 id="recovery-options-title">Choose a recovery option</h2>
+            <p class="text-muted">Select how you’d like us to help.</p>
+        </div>
+        <form method="post" class="auth-recovery-options-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <fieldset class="auth-recovery-options-group">
+                <legend class="form-label">What do you need?</legend>
+                <div class="auth-recovery-choice">
+                    <input class="visually-hidden" type="radio" name="recovery_option" value="reset" id="recoveryReset" required>
+                    <label class="auth-recovery-choice-label" for="recoveryReset">
+                        <span class="auth-recovery-choice-icon" aria-hidden="true"><i class="bi bi-key"></i></span>
+                        <span class="auth-recovery-choice-copy"><strong>Create a new password</strong><small>Set a new secure password for your account.</small></span>
+                        <i class="bi bi-check-circle-fill auth-recovery-choice-check" aria-hidden="true"></i>
+                    </label>
+                </div>
+                <div class="auth-recovery-choice">
+                    <input class="visually-hidden" type="radio" name="recovery_option" value="account" id="recoveryAccount" required>
+                    <label class="auth-recovery-choice-label" for="recoveryAccount">
+                        <span class="auth-recovery-choice-icon" aria-hidden="true"><i class="bi bi-person-vcard"></i></span>
+                        <span class="auth-recovery-choice-copy"><strong>Recover username information</strong><small>Email your username and account recovery guidance.</small></span>
+                        <i class="bi bi-check-circle-fill auth-recovery-choice-check" aria-hidden="true"></i>
+                    </label>
+                </div>
+            </fieldset>
+            <button class="btn btn-primary auth-recovery-submit" type="submit">Continue<i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+        </form>
+        <a class="auth-recovery-back" href="{{ url_for('auth.login') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i>Back to sign in</a>
+    </section>
+</div>
+{% endblock %}

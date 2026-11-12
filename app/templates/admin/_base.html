@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+{% block body_class %}admin-app {% endblock %}
+{% block site_header %}
+{% set ep = request.endpoint or '' %}
+<aside class="admin-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+    <div class="offcanvas-header">
+        <a class="navbar-brand admin-brand mb-0" href="{{ url_for('admin.dashboard') }}" id="adminSidebarLabel">
+            {% include 'includes/brand_mark.html' %}
+            <span class="brand-copy">
+                <strong>HealthMate AI</strong>
+                <small>Admin console</small>
+            </span>
+        </a>
+        <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Close menu"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column p-0">
+        <div class="admin-sidebar-scroll">
+            <p class="sidebar-section-label">Overview</p>
+            <nav class="nav flex-column sidebar-nav" aria-label="Admin">
+                <a class="nav-link {% if ep == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}" {% if ep == 'admin.dashboard' %}aria-current="page"{% endif %}>
+                    <i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard
+                </a>
+                <a class="nav-link {% if ep in ['admin.users', 'admin.add_user', 'admin.edit_user'] %}active{% endif %}" href="{{ url_for('admin.users') }}">
+                    <i class="bi bi-people" aria-hidden="true"></i> Users
+                </a>
+                <a class="nav-link {% if ep.startswith('admin.feedback') %}active{% endif %}" href="{{ url_for('admin.feedback') }}">
+                    <i class="bi bi-chat-square-heart" aria-hidden="true"></i> Feedback
+                </a>
+                <a class="nav-link {% if ep == 'admin.settings' %}active{% endif %}" href="{{ url_for('admin.settings') }}">
+                    <i class="bi bi-gear" aria-hidden="true"></i> Settings
+                </a>
+            </nav>
+            <p class="sidebar-section-label">Records</p>
+            <nav class="nav flex-column sidebar-nav" aria-label="Admin records">
+                <a class="nav-link {% if ep.startswith('admin.medicine') %}active{% endif %}" href="{{ url_for('admin.medicines') }}">
+                    <i class="bi bi-capsule" aria-hidden="true"></i> Medicines
+                </a>
+                <a class="nav-link {% if ep.startswith('admin.appointment') %}active{% endif %}" href="{{ url_for('admin.appointments') }}">
+                    <i class="bi bi-calendar2-heart" aria-hidden="true"></i> Appointments
+                </a>
+                <a class="nav-link {% if ep.startswith('admin.health') %}active{% endif %}" href="{{ url_for('admin.health_records') }}">
+                    <i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Health records
+                </a>
+                <a class="nav-link {% if ep.startswith('admin.report') %}active{% endif %}" href="{{ url_for('admin.reports') }}">
+                    <i class="bi bi-file-earmark-medical" aria-hidden="true"></i> Reports
+                </a>
+            </nav>
+        </div>
+    </div>
+</aside>
+<header class="admin-topbar sticky-top">
+    <nav class="navbar admin-navbar">
+        <div class="container-fluid">
+            <button class="btn admin-menu-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-label="Open admin menu">
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
+            <div class="admin-topbar-copy">
+                <p class="admin-topbar-kicker mb-0">Administration</p>
+                <p class="admin-topbar-title mb-0">{% block admin_heading %}Dashboard{% endblock %}</p>
+            </div>
+            <div class="admin-topbar-actions">
+                <div class="admin-theme-toggle segmented-control" role="group" aria-label="Display mode">
+                    <button class="btn" type="button" data-theme-choice="light" title="Light mode" aria-label="Light mode"><i class="bi bi-sun" aria-hidden="true"></i></button>
+                    <button class="btn" type="button" data-theme-choice="dark" title="Dark mode" aria-label="Dark mode"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+                </div>
+                <div class="dropdown">
+                    <button class="admin-account-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="adminAccountMenu">
+                        <span class="admin-account-avatar" aria-hidden="true">{{ current_admin.full_name[0]|upper }}</span>
+                        <span class="admin-account-name d-none d-md-inline">{{ current_admin.full_name }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end admin-account-menu" aria-labelledby="adminAccountMenu">
+                        <li><a class="dropdown-item" href="{{ url_for('admin.settings') }}"><i class="bi bi-gear me-2" aria-hidden="true"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{{ url_for('auth.logout') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="dropdown-item text-danger" type="submit"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log out</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+{% endblock %}
+{% block main_class %}admin-content{% endblock %}
+{% block content %}
+<nav class="admin-breadcrumb" aria-label="Breadcrumb">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+        {% block breadcrumb %}{% endblock %}
+    </ol>
+</nav>
+<section class="page-canvas admin-canvas">{% block page %}{% endblock %}</section>
+<div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="confirmActionTitle">Confirm action</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0" id="confirmActionMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmActionSubmit">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

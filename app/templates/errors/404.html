@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Not found{% endblock %}
+{% block content %}{% set code = '404' %}{% set heading = 'Page not found' %}{% set message = 'The requested page does not exist.' %}{% include 'errors/_status.html' %}{% endblock %}

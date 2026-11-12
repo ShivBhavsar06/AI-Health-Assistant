@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Please slow down{% endblock %}
+{% block content %}{% set code = '429' %}{% set heading = 'Please slow down' %}{% set message = 'Too many requests were received. Wait a moment and try again.' %}{% include 'errors/_status.html' %}{% endblock %}

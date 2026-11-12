@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Action not available{% endblock %}
+{% block content %}{% set code = '405' %}{% set heading = 'That action is not available' %}{% set message = 'Use the controls provided on the page and try again.' %}{% include 'errors/_status.html' %}{% endblock %}

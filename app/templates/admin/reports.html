@@ -1,0 +1,47 @@
+{% extends 'admin/_base.html' %}
+{% block title %}Manage reports{% endblock %}
+{% block admin_heading %}Reports{% endblock %}
+{% block breadcrumb %}<li class="breadcrumb-item active" aria-current="page">Reports</li>{% endblock %}
+{% block page %}
+<div class="page-header">
+    <div>
+        <p class="page-kicker">Documents</p>
+        <h1 class="h2">Medical reports</h1>
+        <p class="text-muted mb-0">Review uploaded patient files.</p>
+    </div>
+</div>
+<form class="search-bar row g-2" method="get" role="search">
+    <div class="col-md">
+        <label class="form-label visually-hidden" for="reportSearch">Search reports</label>
+        <input class="form-control" id="reportSearch" name="q" value="{{ q }}" placeholder="Search report name, type, or patient" type="search">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('admin.reports') }}">Clear</a>{% endif %}
+    </div>
+</form>
+<div class="app-table table-responsive">
+    <table class="table align-middle">
+        <thead><tr><th scope="col">ID</th><th scope="col">Patient</th><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Uploaded</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for report in reports %}
+            <tr>
+                <td>{{ report.report_id }}</td>
+                <td>{{ report.user.full_name if report.user else report.user_id }}</td>
+                <td class="fw-semibold">{{ report.report_name }}</td>
+                <td>{{ report.report_type or '—' }}</td>
+                <td>{{ report.upload_date or '—' }}</td>
+                <td class="text-end">
+                    <form method="post" action="{{ url_for('admin.delete_report', report_id=report.report_id) }}" data-confirm="Delete this report?">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="admin-empty-cell">No reports found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

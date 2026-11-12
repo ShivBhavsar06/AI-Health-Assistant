@@ -1,0 +1,43 @@
+{% extends 'app_base.html' %}
+{% block title %}Medical reports{% endblock %}
+{% block page %}
+<div class="report-page">
+<div class="page-header report-page-header">
+    <div>
+        <p class="page-kicker">Health library</p>
+        <h2>Medical reports</h2>
+        <p class="text-muted mb-0">Keep important test results and medical documents together.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('medical_reports.upload') }}"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>Upload report</a>
+</div>
+<section class="report-list-panel" aria-label="Your medical reports">
+    <div class="report-list-toolbar">
+        <div class="report-list-count"><i class="bi bi-folder2-open" aria-hidden="true"></i><strong>{{ reports|length }}</strong><span>{{ 'report' if reports|length == 1 else 'reports' }}</span></div>
+        <form class="report-search" method="get" role="search">
+            <label class="visually-hidden" for="reportSearch">Search medical reports</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input class="form-control" id="reportSearch" type="search" name="q" value="{{ q }}" placeholder="Search by name or type">
+            {% if q %}<a class="btn btn-outline-secondary" href="{{ url_for('medical_reports.list_reports') }}" aria-label="Clear report search"><i class="bi bi-x-lg" aria-hidden="true"></i></a>{% endif %}
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="table-responsive">
+    <table class="table align-middle report-table">
+        <thead><tr><th scope="col">Document</th><th scope="col">Category</th><th scope="col">Uploaded</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+        {% for report in reports %}
+            <tr>
+                <td><div class="report-document-cell"><span class="report-document-icon"><i class="bi bi-file-earmark-medical" aria-hidden="true"></i></span><div><strong>{{ report.report_name or report.report_id }}</strong><span>Medical document</span></div></div></td>
+                <td><span class="report-category">{{ report.report_type or 'Uncategorized' }}</span></td>
+                <td><span class="report-upload-date"><i class="bi bi-calendar3" aria-hidden="true"></i>{{ report.upload_date.strftime('%b %d, %Y') if report.upload_date else 'Date unavailable' }}</span></td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ url_for('medical_reports.detail', report_id=report.report_id) }}">View report<i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a></td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4"><div class="report-empty"><span class="report-empty-icon"><i class="bi bi-file-earmark-medical" aria-hidden="true"></i></span><strong>{{ 'No matching reports' if q else 'Your report library is empty' }}</strong><span>{{ 'Try a different search or clear the current filter.' if q else 'Upload a test result or medical document to keep it easy to find.' }}</span>{% if not q %}<a class="btn btn-primary btn-sm" href="{{ url_for('medical_reports.upload') }}"><i class="bi bi-cloud-arrow-up me-1" aria-hidden="true"></i>Upload first report</a>{% endif %}</div></td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</section>
+</div>
+{% endblock %}

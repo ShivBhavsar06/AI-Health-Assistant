@@ -1,0 +1,7 @@
+<div class="section-panel error-panel">
+    <div class="auth-brand d-flex justify-content-center">{% include 'includes/brand_mark.html' %}</div>
+    <p class="error-code">{{ code }}</p>
+    <h2>{{ heading }}</h2>
+    <p class="mb-3 text-muted">{{ message }}</p>
+    <a class="btn btn-primary" href="{{ url_for('main.home') }}">Back to home</a>
+</div>

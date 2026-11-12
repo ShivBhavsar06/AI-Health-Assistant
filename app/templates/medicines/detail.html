@@ -1,0 +1,47 @@
+{% extends 'app_base.html' %}
+{% block title %}Medicine details{% endblock %}
+{% block page %}
+<div class="medicine-page">
+    <div class="page-header medicine-page-header">
+        <div>
+            <p class="page-kicker">Treatment plan</p>
+            <h2>{{ medicine.medicine_name }}</h2>
+            <p class="text-muted mb-0">Medicine details and scheduled dose times</p>
+        </div>
+        <div class="medicine-detail-actions">
+            <a class="btn btn-outline-primary" href="{{ url_for('medicines.edit', medicine_id=medicine.medicine_id) }}"><i class="bi bi-pencil-square" aria-hidden="true"></i>Edit</a>
+            <form method="post" action="{{ url_for('medicines.delete', medicine_id=medicine.medicine_id) }}" data-confirm="Delete this medicine?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-danger" type="submit"><i class="bi bi-trash3" aria-hidden="true"></i>Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <section class="medicine-detail-hero" aria-label="Medicine summary">
+        <div class="medicine-detail-hero-icon"><i class="bi bi-capsule-pill" aria-hidden="true"></i></div>
+        <div><span class="medicine-detail-kicker">Prescribed dosage</span><h3>{{ medicine.dosage or 'Dosage not specified' }}</h3></div>
+        <span class="medicine-detail-id">{{ medicine.medicine_id }}</span>
+    </section>
+
+    <section class="medicine-detail-section" aria-labelledby="medicine-dose-title">
+        <div class="medicine-detail-section-heading"><div><p class="page-kicker">Daily routine</p><h3 id="medicine-dose-title">Dose schedule</h3></div><i class="bi bi-clock-history" aria-hidden="true"></i></div>
+        <div class="medicine-dose-grid">
+            <div class="medicine-dose-item"><span class="medicine-dose-icon medicine-dose-morning"><i class="bi bi-sunrise" aria-hidden="true"></i></span><span class="medicine-dose-label">Morning</span><strong>{{ medicine.morning_time.strftime('%H:%M') if medicine.morning_time else 'Not scheduled' }}</strong></div>
+            <div class="medicine-dose-item"><span class="medicine-dose-icon medicine-dose-afternoon"><i class="bi bi-sun" aria-hidden="true"></i></span><span class="medicine-dose-label">Afternoon</span><strong>{{ medicine.afternoon_time.strftime('%H:%M') if medicine.afternoon_time else 'Not scheduled' }}</strong></div>
+            <div class="medicine-dose-item"><span class="medicine-dose-icon medicine-dose-evening"><i class="bi bi-sunset" aria-hidden="true"></i></span><span class="medicine-dose-label">Evening</span><strong>{{ medicine.evening_time.strftime('%H:%M') if medicine.evening_time else 'Not scheduled' }}</strong></div>
+            <div class="medicine-dose-item"><span class="medicine-dose-icon medicine-dose-night"><i class="bi bi-moon-stars" aria-hidden="true"></i></span><span class="medicine-dose-label">Night</span><strong>{{ medicine.night_time.strftime('%H:%M') if medicine.night_time else 'Not scheduled' }}</strong></div>
+        </div>
+    </section>
+
+    <div class="medicine-detail-bottom">
+        <section class="medicine-detail-section">
+            <div class="medicine-detail-section-heading"><div><p class="page-kicker">Duration</p><h3>Treatment period</h3></div><i class="bi bi-calendar-range" aria-hidden="true"></i></div>
+            <div class="medicine-period"><div><span>Starts</span><strong>{{ medicine.start_date or 'Not set' }}</strong></div><i class="bi bi-arrow-right" aria-hidden="true"></i><div><span>Ends</span><strong>{{ medicine.end_date or 'Not set' }}</strong></div></div>
+        </section>
+        <section class="medicine-detail-section">
+            <div class="medicine-detail-section-heading"><div><p class="page-kicker">Directions</p><h3>Instructions</h3></div><i class="bi bi-card-text" aria-hidden="true"></i></div>
+            <p class="medicine-instructions-copy">{{ medicine.instructions or 'No additional instructions provided.' }}</p>
+        </section>
+    </div>
+</div>
+{% endblock %}

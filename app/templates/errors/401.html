@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Authentication required{% endblock %}
+{% block content %}{% set code = '401' %}{% set heading = 'Authentication required' %}{% set message = 'Please sign in to continue to this page.' %}{% include 'errors/_status.html' %}{% endblock %}

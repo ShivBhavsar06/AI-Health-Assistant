@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Server error{% endblock %}
+{% block content %}{% set code = '500' %}{% set heading = 'Something went wrong' %}{% set message = 'We could not complete that request. Please try again later.' %}{% include 'errors/_status.html' %}{% endblock %}

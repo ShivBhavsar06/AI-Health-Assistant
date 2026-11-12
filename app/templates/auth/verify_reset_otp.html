@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Verify reset OTP{% endblock %}
+{% block body_class %}auth-screen {% endblock %}
+{% block content %}
+<div class="auth-recovery-layout">
+    <section class="auth-recovery-aside" aria-label="Account recovery information">
+        <div class="auth-recovery-brand">
+            {% include 'includes/brand_mark.html' %}
+            <span><strong>HealthMate AI</strong><small>Personal health workspace</small></span>
+        </div>
+        <div class="auth-recovery-message">
+            <span class="auth-recovery-icon" aria-hidden="true"><i class="bi bi-envelope-check"></i></span>
+            <p class="auth-recovery-kicker">Account recovery</p>
+            <h1>One last security check.</h1>
+            <p>Verify the one-time code to continue recovering access to your account.</p>
+        </div>
+        <div class="auth-recovery-trust"><i class="bi bi-lock" aria-hidden="true"></i><span>Your account details stay protected.</span></div>
+    </section>
+
+    <section class="auth-recovery-form-panel" aria-labelledby="otp-title">
+        <div class="auth-recovery-form-heading">
+            <p class="page-kicker">Step 2 of 3</p>
+            <h2 id="otp-title">Check your email</h2>
+            <p class="text-muted">Enter the six-digit verification code we sent to your registered email address.</p>
+        </div>
+        <form method="post" class="auth-recovery-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-4">
+                <label class="form-label" for="resetOtp">Verification code</label>
+                <input class="form-control auth-otp-input" id="resetOtp" type="text" name="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" aria-describedby="otpHelp" placeholder="000000" required>
+                <div class="form-text" id="otpHelp">Use the latest code. It contains 6 digits.</div>
+            </div>
+            <button class="btn btn-primary auth-recovery-submit" type="submit">Verify code<i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+        </form>
+        <a class="auth-recovery-back" href="{{ url_for('auth.forgot_password') }}"><i class="bi bi-arrow-left" aria-hidden="true"></i>Use a different email</a>
+    </section>
+</div>
+{% endblock %}

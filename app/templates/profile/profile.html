@@ -1,0 +1,73 @@
+{% extends 'app_base.html' %}
+{% block title %}Profile{% endblock %}
+{% block page %}
+<div class="profile-page">
+    <section class="profile-hero" aria-labelledby="profile-title">
+        <div class="profile-hero-inner">
+            <button class="profile-photo-btn" type="button" data-profile-edit-open aria-label="Change profile photo">
+                <span class="profile-photo-ring">
+                    {% if profile_user.profile_photo %}
+                        <img class="profile-photo" src="{{ url_for('uploaded_file', filename=profile_user.profile_photo) }}" alt="Profile photo">
+                    {% else %}
+                        <span class="profile-photo-placeholder">{{ profile_user.full_name[0]|upper }}</span>
+                    {% endif %}
+                    <span class="profile-photo-edit"><i class="bi bi-camera-fill" aria-hidden="true"></i></span>
+                </span>
+            </button>
+            <div class="profile-hero-copy">
+                <p class="profile-hero-kicker">Personal health workspace</p>
+                <h2 id="profile-title">{{ profile_user.full_name }}</h2>
+                <p class="profile-username"><i class="bi bi-at" aria-hidden="true"></i>{{ profile_user.username }}</p>
+            </div>
+            <button class="btn btn-light profile-edit-trigger" type="button" data-profile-edit-open><i class="bi bi-pencil-square" aria-hidden="true"></i>Edit profile</button>
+        </div>
+    </section>
+
+    {% include 'profile/_edit_form.html' %}
+
+    <div class="profile-sections">
+        <section class="card app-card profile-data-card" aria-labelledby="profile-details-title">
+            <div class="card-body">
+                <div class="profile-section-heading">
+                    <span class="profile-section-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+                    <div><p class="page-kicker">Account</p><h3 id="profile-details-title">Personal details</h3></div>
+                </div>
+                <dl class="profile-detail-list">
+                    <div><dt><i class="bi bi-envelope" aria-hidden="true"></i>Email</dt><dd>{{ profile_user.email }}</dd></div>
+                    <div><dt><i class="bi bi-telephone" aria-hidden="true"></i>Phone</dt><dd>{{ profile_user.phone_number or 'Not provided' }}</dd></div>
+                    <div><dt><i class="bi bi-calendar3" aria-hidden="true"></i>Date of birth</dt><dd>{{ profile_user.date_of_birth or 'Not provided' }}</dd></div>
+                    <div><dt><i class="bi bi-person" aria-hidden="true"></i>Gender</dt><dd>{{ profile_user.gender or 'Not provided' }}</dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <section class="card app-card profile-data-card profile-emergency-card" aria-labelledby="profile-emergency-title">
+            <div class="card-body">
+                <div class="profile-section-heading">
+                    <span class="profile-section-icon profile-emergency-icon"><i class="bi bi-telephone-forward" aria-hidden="true"></i></span>
+                    <div><p class="page-kicker">For urgent situations</p><h3 id="profile-emergency-title">Emergency contact</h3></div>
+                </div>
+                <dl class="profile-detail-list profile-emergency-list">
+                    <div><dt>Name</dt><dd>{{ profile_user.emergency_contact_name or 'Not provided' }}</dd></div>
+                    <div><dt>Relationship</dt><dd>{{ profile_user.emergency_contact_relationship or 'Not provided' }}</dd></div>
+                    <div><dt>Phone</dt><dd>{% if profile_user.emergency_contact_phone %}<a href="tel:{{ profile_user.emergency_contact_phone }}">{{ profile_user.emergency_contact_phone }}<i class="bi bi-telephone-outbound ms-2" aria-hidden="true"></i></a>{% else %}Not provided{% endif %}</dd></div>
+                </dl>
+            </div>
+        </section>
+    </div>
+
+    <section class="profile-activity" aria-labelledby="profile-activity-title">
+        <div class="profile-section-heading">
+            <span class="profile-section-icon profile-activity-icon"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span>
+            <div><p class="page-kicker">Your workspace</p><h3 id="profile-activity-title">Health activity</h3></div>
+        </div>
+        <div class="profile-activity-grid">
+            <a class="profile-activity-item" href="{{ url_for('medicines.list_medicines') }}"><span class="profile-activity-symbol profile-activity-medicine"><i class="bi bi-capsule" aria-hidden="true"></i></span><span class="profile-activity-label">Medicines</span><strong>{{ analytics.medicines }}</strong><i class="bi bi-arrow-up-right profile-activity-arrow" aria-hidden="true"></i></a>
+            <a class="profile-activity-item" href="{{ url_for('appointments.list_appointments') }}"><span class="profile-activity-symbol profile-activity-appointments"><i class="bi bi-calendar2-heart" aria-hidden="true"></i></span><span class="profile-activity-label">Appointments</span><strong>{{ analytics.appointments }}</strong><i class="bi bi-arrow-up-right profile-activity-arrow" aria-hidden="true"></i></a>
+            <a class="profile-activity-item" href="{{ url_for('medical_reports.list_reports') }}"><span class="profile-activity-symbol profile-activity-reports"><i class="bi bi-file-earmark-medical" aria-hidden="true"></i></span><span class="profile-activity-label">Reports</span><strong>{{ analytics.reports }}</strong><i class="bi bi-arrow-up-right profile-activity-arrow" aria-hidden="true"></i></a>
+            <a class="profile-activity-item" href="{{ url_for('reminders.list_reminders') }}"><span class="profile-activity-symbol profile-activity-reminders"><i class="bi bi-bell" aria-hidden="true"></i></span><span class="profile-activity-label">Pending reminders</span><strong>{{ analytics.pending_reminders }}</strong><i class="bi bi-arrow-up-right profile-activity-arrow" aria-hidden="true"></i></a>
+        </div>
+    </section>
+</div>
+
+{% endblock %}

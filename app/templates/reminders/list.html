@@ -1,0 +1,79 @@
+{% extends 'app_base.html' %}
+{% block title %}Reminders{% endblock %}
+{% block page %}
+<div class="reminder-page">
+<div class="page-header reminder-page-header">
+    <div>
+        <p class="page-kicker">Schedule</p>
+        <h2>Reminders</h2>
+        <p class="text-muted mb-0">Medicine and appointment alerts, organized by time.</p>
+    </div>
+    <div class="reminder-page-actions">
+        <div class="reminder-view-toggle" role="group" aria-label="Choose reminders to show">
+            <a class="{% if not show_all %}active{% endif %}" href="{{ url_for('reminders.list_reminders') }}" {% if not show_all %}aria-current="page"{% endif %}><i class="bi bi-calendar-day" aria-hidden="true"></i>Today</a>
+            <a class="{% if show_all %}active{% endif %}" href="{{ url_for('reminders.list_reminders', view='all') }}" {% if show_all %}aria-current="page"{% endif %}><i class="bi bi-calendar3" aria-hidden="true"></i>All</a>
+        </div>
+        <form method="post" action="{{ url_for('reminders.delete_all') }}" {% if reminder_total %}data-confirm="Delete all of your reminders? This cannot be undone."{% endif %}>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-danger" type="submit" aria-label="Delete all reminders" title="Delete all reminders" {% if not reminder_total %}disabled{% endif %}><i class="bi bi-trash3" aria-hidden="true"></i><span>Delete all</span></button>
+        </form>
+    </div>
+</div>
+{% if show_all %}
+    {% set section_key = 'all' %}
+    {% set section_title = 'All reminders' %}
+{% else %}
+    {% set section_key = 'today' %}
+    {% set section_title = "Today's reminders" %}
+{% endif %}
+<section class="reminder-summary" aria-label="Reminder overview">
+    <span class="reminder-summary-icon"><i class="bi bi-bell" aria-hidden="true"></i></span>
+    <div class="reminder-summary-copy">
+        <p class="page-kicker">{{ 'Full schedule' if show_all else 'Your day' }}</p>
+        <h3>{{ section_title }}</h3>
+        <p>{{ 'All your upcoming and past medicine and appointment reminders.' if show_all else 'The reminders scheduled for today.' }}</p>
+    </div>
+    <div class="reminder-summary-count"><strong>{{ reminder_total }}</strong><span>{{ 'reminder' if reminder_total == 1 else 'reminders' }}</span></div>
+</section>
+
+<section class="reminder-list-panel" aria-labelledby="reminder-list-title">
+    <div class="reminder-list-heading">
+        <div><h3 id="reminder-list-title">{{ section_title }}</h3><p>Review each alert and mark it complete when handled.</p></div>
+        <i class="bi bi-list-check" aria-hidden="true"></i>
+    </div>
+    {% if groups[section_key] %}
+    <div class="table-responsive">
+        <table class="table align-middle reminder-table">
+            <thead><tr><th scope="col">Type</th><th scope="col">Reminder</th><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+            <tbody>
+            {% for item in groups[section_key] %}
+                <tr>
+                    <td><span class="reminder-type-cell"><span class="reminder-type-icon reminder-type-{{ item.reminder_type|lower }}"><i class="bi {% if item.medicine %}bi-capsule-pill{% else %}bi-calendar2-heart{% endif %}" aria-hidden="true"></i></span><span>{{ item.reminder_type }}</span></span></td>
+                    <td><div class="reminder-detail-cell"><strong>{% if item.medicine %}{{ item.medicine.medicine_name }}{% elif item.appointment %}{{ item.appointment.doctor_name or 'Appointment' }}{% else %}Reminder{% endif %}</strong><span>{{ 'Medication dose' if item.medicine else 'Appointment alert' }}</span></div></td>
+                    <td><span class="reminder-date-cell"><i class="bi bi-calendar3" aria-hidden="true"></i>{{ item.reminder_date or '—' }}</span></td>
+                    <td><span class="reminder-time-cell"><i class="bi bi-clock" aria-hidden="true"></i>{{ item.reminder_time.strftime('%H:%M') if item.reminder_time else '—' }}</span></td>
+                    <td><span class="badge badge-{{ item.status|lower }} reminder-status">{{ item.status }}</span></td>
+                    <td class="text-end">
+                        {% if item.status != 'Completed' %}
+                        <form method="post" action="{{ url_for('reminders.complete', reminder_id=item.reminder_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-sm btn-outline-success reminder-complete-button" type="submit"><i class="bi bi-check2" aria-hidden="true"></i><span>Complete</span></button>
+                        </form>
+                        {% else %}<span class="reminder-completed-mark" aria-label="Completed"><i class="bi bi-check-circle-fill" aria-hidden="true"></i></span>{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="reminder-empty-state">
+        <span class="reminder-empty-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span>
+        <h4>{{ 'You are all caught up' if not show_all else 'No reminders yet' }}</h4>
+        <p>{{ 'There are no reminders scheduled for today.' if not show_all else 'Medicine and appointment reminders will appear here.' }}</p>
+        {% if not show_all %}<a class="btn btn-outline-primary btn-sm" href="{{ url_for('reminders.list_reminders', view='all') }}">View all reminders<i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>{% endif %}
+    </div>
+    {% endif %}
+</section>
+</div>
+{% endblock %}

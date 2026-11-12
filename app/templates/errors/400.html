@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block title %}Bad request{% endblock %}
+{% block content %}{% set code = '400' %}{% set heading = 'We could not process that request' %}{% set message = 'Check the information you submitted and try again.' %}{% include 'errors/_status.html' %}{% endblock %}
