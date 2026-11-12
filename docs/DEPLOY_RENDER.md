@@ -113,7 +113,12 @@ it for free, the app accepts any OpenAI-compatible provider — no paid OpenAI k
 | Google AI Studio (no card) | <https://aistudio.google.com/apikey> | `https://generativelanguage.googleapis.com/v1beta/openai/` | `gemini-2.5-flash` |
 | OpenRouter (`:free` models) | <https://openrouter.ai/keys> | `https://openrouter.ai/api/v1` | a model ending in `:free` |
 
-Set those three variables in Render → Environment (and in local `.env` to test). Notes:
+Set those three variables in Render → Environment (and in local `.env` to test). **Only the key
+is required**: when `OPENROUTER_BASE_URL` / `OPENROUTER_MODEL` are empty (or still point at
+OpenRouter), the app infers them from the key prefix (`gsk_` → Groq, `AIza` → Gemini). Set all
+three explicitly if you use a provider the app doesn't recognise.
+
+Notes:
 
 - Groq requires phone verification and allows ~30 requests/min, 1,000/day.
 - Google's free tier may use prompts for product improvement outside the EEA/UK/CH — avoid it

@@ -31,6 +31,29 @@ def _database_uri() -> str:
     )
 
 
+def _ai_endpoint() -> tuple[str, str]:
+    """Pick the AI base URL and model, inferring the provider from the key prefix."""
+    key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    base_url = os.getenv("OPENROUTER_BASE_URL", "").strip()
+    model = os.getenv("OPENROUTER_MODEL", "").strip()
+
+    providers = {
+        "gsk_": ("https://api.groq.com/openai/v1", "openai/gpt-oss-120b"),
+        "AIza": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-2.5-flash"),
+    }
+    for prefix, (provider_base, provider_model) in providers.items():
+        if not key.startswith(prefix):
+            continue
+        # A provider key paired with the default OpenRouter URL is a configuration mistake.
+        if not base_url or "openrouter.ai" in base_url:
+            base_url = provider_base
+        if not model or model == "openai/gpt-4o-mini":
+            model = provider_model
+        break
+
+    return base_url or "https://openrouter.ai/api/v1", model or "openai/gpt-4o-mini"
+
+
 def _engine_options() -> dict:
     """Connection options, including TLS for managed MySQL providers."""
     options = {"pool_pre_ping": True}
@@ -76,9 +99,8 @@ class Config:
     SESSION_REFRESH_EACH_REQUEST = True
     PERMANENT_SESSION_LIFETIME = int(os.getenv("REMEMBER_ME_DAYS", "30")) * 86400
 
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-    OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
+    OPENROUTER_BASE_URL, OPENROUTER_MODEL = _ai_endpoint()
     OPENROUTER_SITE_URL = os.getenv("OPENROUTER_SITE_URL", "")
     OPENROUTER_APP_NAME = os.getenv("OPENROUTER_APP_NAME", "HealthMate AI")
 

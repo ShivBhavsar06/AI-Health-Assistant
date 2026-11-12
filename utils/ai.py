@@ -14,9 +14,65 @@ from models.reminder import Reminder
 
 UNAVAILABLE_MESSAGE = "The AI assistant is temporarily unavailable. Please try again later."
 NOT_CONFIGURED_MESSAGE = "AI features are not enabled on this deployment."
-AUTHENTICATION_MESSAGE = "The AI provider rejected the configured API key. Set a valid OPENROUTER_API_KEY in .env and restart the app."
+AUTHENTICATION_MESSAGE = (
+    "The AI provider rejected the API key. OPENROUTER_API_KEY must belong to the provider set in "
+    "OPENROUTER_BASE_URL, and OPENROUTER_MODEL must be a model that provider offers."
+)
 RATE_LIMIT_MESSAGE = "The assistant is busy right now. Please wait a moment and try again."
 TIMEOUT_MESSAGE = "The assistant took too long to respond. Please try again."
+MODEL_MESSAGE = (
+    "The configured AI model is not available for this API key. "
+    "Set OPENROUTER_MODEL to a model your provider supports."
+)
+
+
+def _ai_client():
+    """Build an OpenAI-compatible client from the current provider settings."""
+    from openai import OpenAI
+
+    headers = {}
+    if current_app.config.get("OPENROUTER_SITE_URL"):
+        headers["HTTP-Referer"] = current_app.config["OPENROUTER_SITE_URL"]
+    if current_app.config.get("OPENROUTER_APP_NAME"):
+        headers["X-Title"] = current_app.config["OPENROUTER_APP_NAME"]
+
+    return OpenAI(
+        api_key=current_app.config.get("OPENROUTER_API_KEY"),
+        base_url=current_app.config.get("OPENROUTER_BASE_URL") or "https://openrouter.ai/api/v1",
+        timeout=20.0,
+        max_retries=0,
+        default_headers=headers or None,
+    )
+
+
+def _ai_error_message(exc: Exception) -> str:
+    """Map provider errors to a user-facing message.
+
+    Providers disagree on status codes (a bad Gemini key returns 400 rather than
+    401), so inspect both the code and the message text.
+    """
+    status = getattr(exc, "status_code", None)
+    text = str(exc).lower()
+    auth_markers = (
+        "invalid api key",
+        "api key not valid",
+        "valid api key",
+        "api key is invalid",
+        "incorrect api key",
+        "invalid_api_key",
+        "unauthorized",
+    )
+    if status in (401, 403) or any(marker in text for marker in auth_markers):
+        return AUTHENTICATION_MESSAGE
+    if status == 429 or "rate limit" in text or "rate_limit" in text or "quota" in text:
+        return RATE_LIMIT_MESSAGE
+    if status == 404 or "model" in text and any(
+        marker in text for marker in ("not found", "does not exist", "not supported", "invalid model")
+    ):
+        return MODEL_MESSAGE
+    if getattr(exc, "status_code", None) is None and ("timeout" in text or "timed out" in text):
+        return TIMEOUT_MESSAGE
+    return UNAVAILABLE_MESSAGE
 
 SYSTEM_PROMPT = (
     "You are a general health information assistant for the AI Personal Health and Medicine "
@@ -117,18 +173,7 @@ def summarize_uploaded_report(user, file_storage):
         ]
 
     try:
-        from openai import APITimeoutError, AuthenticationError, OpenAI, RateLimitError
-
-        client = OpenAI(
-            api_key=api_key,
-            base_url=current_app.config.get("OPENROUTER_BASE_URL") or "https://openrouter.ai/api/v1",
-            timeout=20.0,
-            max_retries=0,
-            default_headers={
-                "HTTP-Referer": current_app.config.get("OPENROUTER_SITE_URL") or "",
-                "X-Title": current_app.config.get("OPENROUTER_APP_NAME") or "HealthMate AI",
-            },
-        )
+        client = _ai_client()
         response = client.chat.completions.create(
             model=current_app.config.get("OPENROUTER_MODEL") or "openai/gpt-4o-mini",
             messages=messages,
@@ -137,18 +182,13 @@ def summarize_uploaded_report(user, file_storage):
         )
         content = (response.choices[0].message.content or "").strip()
         return (True, content) if content else (False, UNAVAILABLE_MESSAGE)
-    except AuthenticationError:
-        current_app.logger.error("OpenRouter rejected the configured API key while summarizing a report")
-        return False, AUTHENTICATION_MESSAGE
-    except RateLimitError:
-        current_app.logger.warning("OpenRouter rate limit reached while summarizing a report")
-        return False, RATE_LIMIT_MESSAGE
-    except APITimeoutError:
-        current_app.logger.warning("OpenRouter report summary request timed out")
-        return False, TIMEOUT_MESSAGE
-    except Exception:
-        current_app.logger.exception("OpenRouter report summary request failed")
-        return False, UNAVAILABLE_MESSAGE
+    except Exception as exc:
+        message = _ai_error_message(exc)
+        if message is UNAVAILABLE_MESSAGE:
+            current_app.logger.exception("AI report summary request failed")
+        else:
+            current_app.logger.warning("AI report summary request failed: %s", exc)
+        return False, message
 
 
 def _relevant_context(user, query: str, include_health_record: bool = True) -> str:
@@ -259,19 +299,7 @@ def ask_health_assistant(user, query: str, mode: str = "chat"):
         context_query = query if mode == "chat" else "summary recommendation health record medicine appointment"
         context = _relevant_context(user, context_query)
     try:
-        from openai import APITimeoutError, AuthenticationError, OpenAI, RateLimitError
-
-        client = OpenAI(
-            api_key=api_key,
-            base_url=current_app.config.get("OPENROUTER_BASE_URL")
-            or "https://openrouter.ai/api/v1",
-            timeout=20.0,
-            max_retries=0,
-            default_headers={
-                "HTTP-Referer": current_app.config.get("OPENROUTER_SITE_URL") or "",
-                "X-Title": current_app.config.get("OPENROUTER_APP_NAME") or "HealthMate AI",
-            },
-        )
+        client = _ai_client()
         response = client.chat.completions.create(
             model=current_app.config.get("OPENROUTER_MODEL") or "openai/gpt-4o-mini",
             messages=[
@@ -289,18 +317,13 @@ def ask_health_assistant(user, query: str, mode: str = "chat"):
         if not content:
             return False, UNAVAILABLE_MESSAGE
         return True, content
-    except AuthenticationError:
-        current_app.logger.error("OpenRouter rejected the configured API key")
-        return False, AUTHENTICATION_MESSAGE
-    except RateLimitError:
-        current_app.logger.warning("OpenRouter rate limit reached")
-        return False, RATE_LIMIT_MESSAGE
-    except APITimeoutError:
-        current_app.logger.warning("OpenRouter health assistant request timed out")
-        return False, TIMEOUT_MESSAGE
-    except Exception:
-        current_app.logger.exception("OpenRouter health assistant request failed")
-        return False, UNAVAILABLE_MESSAGE
+    except Exception as exc:
+        message = _ai_error_message(exc)
+        if message is UNAVAILABLE_MESSAGE:
+            current_app.logger.exception("AI health assistant request failed")
+        else:
+            current_app.logger.warning("AI health assistant request failed: %s", exc)
+        return False, message
 
 
 def build_ai_pdf(text: str, user_name: str) -> bytes:
