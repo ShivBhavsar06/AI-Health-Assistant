@@ -5,6 +5,7 @@ from datetime import datetime
 
 from flask import Flask, render_template, request, send_from_directory, session
 from werkzeug.exceptions import HTTPException
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.cli import register_cli
 from app.config import Config
@@ -20,6 +21,10 @@ def create_app(config_object=None):
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "profiles"), exist_ok=True)
     os.makedirs(os.path.join(app.config["UPLOAD_FOLDER"], "reports"), exist_ok=True)
+
+    if not app.debug:
+        # Render (and most PaaS hosts) terminate TLS at a single proxy in front of the app.
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     db.init_app(app)
     csrf.init_app(app)

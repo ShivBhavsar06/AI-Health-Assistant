@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: healthmate-ai
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --access-logfile - --error-logfile -
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      # MySQL connection details (TiDB Cloud Starter free tier, or any MySQL host).
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Managed MySQL providers require TLS. This encrypts the connection even
+      # before a CA certificate is supplied.
+      - key: DB_SSL_REQUIRE
+        value: "True"
+      # Optional: path to the CA certificate uploaded as a Render secret file,
+      # e.g. /etc/secrets/isrgrootx1.pem. Enables certificate verification.
+      - key: DB_SSL_CA
+        sync: false
+      # Optional integrations.
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_SITE_URL
+        sync: false

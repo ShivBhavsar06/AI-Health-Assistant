@@ -6,9 +6,56 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _env_flag(name: str, default: bool = False) -> bool:
+    """Read a boolean environment variable, falling back to ``default``."""
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _database_uri() -> str:
+    """Build the SQLAlchemy URL, preferring an explicit ``DATABASE_URL``."""
+    database_url = os.getenv("DATABASE_URL", "").strip()
+    if database_url:
+        return database_url
+
+    host = os.getenv("DB_HOST", "localhost")
+    port = os.getenv("DB_PORT", "3306")
+    name = os.getenv("DB_NAME", "ai_health_management")
+    user = os.getenv("DB_USER", "root")
+    password = os.getenv("DB_PASSWORD", "0603")
+    return (
+        f"mysql+pymysql://{quote_plus(user)}:{quote_plus(password)}"
+        f"@{host}:{port}/{name}"
+    )
+
+
+def _engine_options() -> dict:
+    """Connection options, including TLS for managed MySQL providers."""
+    options = {"pool_pre_ping": True}
+    if os.getenv("DATABASE_URL", "").strip():
+        return options
+
+    ssl_ca = os.getenv("DB_SSL_CA", "").strip()
+    ssl_require = _env_flag("DB_SSL_REQUIRE", False)
+    ssl_verify = _env_flag("DB_SSL_VERIFY", True)
+    if ssl_ca:
+        options["connect_args"] = {
+            "ssl": {"ca": ssl_ca, "check_hostname": ssl_verify, "verify_mode": ssl_verify}
+        }
+    elif ssl_require:
+        # Encrypt the connection without pinning a CA certificate.
+        options["connect_args"] = {
+            "ssl": {"ca": None, "check_hostname": False, "verify_mode": False}
+        }
+    return options
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-change-this-secret-key")
-    DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+    # Debugging is opt-in: only enable it when DEBUG is true or FLASK_ENV=development.
+    DEBUG = _env_flag("DEBUG", os.getenv("FLASK_ENV", "").strip().lower() == "development")
 
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = os.getenv("DB_PORT", "3306")
@@ -16,19 +63,16 @@ class Config:
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "0603")
 
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{quote_plus(DB_USER)}:{quote_plus(DB_PASSWORD)}"
-        f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
+    SQLALCHEMY_DATABASE_URI = _database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    SQLALCHEMY_ENGINE_OPTIONS = _engine_options()
 
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = None
     SESSION_COOKIE_NAME = os.getenv("SESSION_COOKIE_NAME", "healthmate_session")
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False" if DEBUG else "True").lower() == "true"
+    SESSION_COOKIE_SECURE = _env_flag("SESSION_COOKIE_SECURE", not DEBUG)
     SESSION_REFRESH_EACH_REQUEST = True
     PERMANENT_SESSION_LIFETIME = int(os.getenv("REMEMBER_ME_DAYS", "30")) * 86400
 
