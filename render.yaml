@@ -33,8 +33,3 @@ services:
       # e.g. /etc/secrets/isrgrootx1.pem. Enables certificate verification.
       - key: DB_SSL_CA
         sync: false
-      # Optional integrations.
-      - key: OPENROUTER_API_KEY
-        sync: false
-      - key: OPENROUTER_SITE_URL
-        sync: false
