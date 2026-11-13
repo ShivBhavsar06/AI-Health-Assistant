@@ -1,4 +1,4 @@
-#hello  HealthMate AI — Personal Health Management
+# HealthMate AI — Personal Health Management
 
 <p>
   <img alt="Python 3" src="https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white">
